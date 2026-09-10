@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>NOCHES ÁCIDAS — dos noches del universo GDM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Righteous&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;background:#0d0a12;overflow:hidden;
+    font-family:'Space Mono','Courier New',monospace;color:#e8dff2;user-select:none;
+    -webkit-user-select:none;-webkit-tap-highlight-color:transparent;
+    touch-action:none;overscroll-behavior:none;}
+  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+  @media (max-width:820px){ #wrap{align-items:flex-start;padding-top:14px;} }
+  #pantalla{image-rendering:pixelated;image-rendering:crisp-edges;background:#0d0a12;
+    box-shadow:0 0 0 3px #241a2e,0 0 60px rgba(160,90,220,.25);}
+
+  .back{position:fixed;top:14px;right:16px;z-index:22;font-family:inherit;font-size:13px;
+    letter-spacing:2px;color:#ffb0e0;background:rgba(30,10,35,.6);
+    border:1px solid rgba(255,176,224,.35);padding:8px 14px;border-radius:8px;text-decoration:none;}
+
+  /* ---------- pantallas ---------- */
+  .screen{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;
+    background:radial-gradient(circle at 50% 34%, rgba(70,25,90,.75), rgba(10,6,14,.97));
+    padding:20px;overflow:auto;}
+  .screen h1{font-family:'Shrikhand',cursive;font-weight:400;
+    font-size:clamp(34px,8.5vw,64px);margin:4px 0;letter-spacing:2px;line-height:1;
+    color:#ffd24a;text-shadow:0 0 22px rgba(255,210,74,.45),0 4px 0 #000;}
+  .screen h1 .x{color:#ff6ad5;text-shadow:0 0 22px rgba(255,106,213,.5),0 4px 0 #000;}
+  .eyebrow{font-family:'Righteous',sans-serif;font-size:clamp(13px,2.8vw,17px);
+    letter-spacing:4px;color:#8affd0;text-transform:uppercase;}
+  .screen p{font-size:clamp(14px,2.9vw,17px);max-width:600px;line-height:1.6;color:#d6c6e6;margin:8px 10px;}
+  .keys{color:#ffd24a;font-weight:bold;}
+  .btn{margin-top:20px;font-family:'Righteous',sans-serif;font-size:19px;letter-spacing:3px;
+    color:#2a0c22;background:#ffd24a;border:none;padding:16px 42px;border-radius:8px;cursor:pointer;
+    box-shadow:0 6px 0 #b07a10,0 10px 24px rgba(0,0,0,.5);}
+  .btn:active{transform:translateY(4px);box-shadow:0 2px 0 #b07a10;}
+  .sub{margin-top:16px;font-size:12px;color:#8a7a96;letter-spacing:1px;}
+  .hide{display:none !important;}
+
+  /* ---------- selector de noche ---------- */
+  .chips{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:14px 0 4px;}
+  .chip{font-family:'Righteous',sans-serif;font-size:13px;letter-spacing:2px;
+    color:#d6c6e6;background:rgba(40,18,54,.7);border:1px solid rgba(255,176,224,.3);
+    padding:11px 18px;border-radius:10px;cursor:pointer;min-width:150px;
+    display:flex;flex-direction:column;gap:3px;align-items:center;transition:transform .12s;}
+  .chip small{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#8a7a96;text-transform:none;}
+  .chip.on{color:#2a0c22;background:#ffd24a;border-color:#ffd24a;box-shadow:0 0 20px rgba(255,210,74,.35);}
+  .chip.on small{color:#7a4a10;}
+  .chip.lock{opacity:.4;cursor:not-allowed;}
+  .chip:not(.lock):hover{transform:translateY(-2px);}
+
+  /* ---------- controles táctiles ---------- */
+  #tacto{position:fixed;inset:0;z-index:9;display:none;pointer-events:none;}
+  #tacto.on{display:block;}
+  .dpad{position:fixed;left:18px;bottom:24px;width:150px;height:150px;pointer-events:auto;}
+  .dbtn{position:absolute;width:50px;height:50px;background:rgba(255,210,74,.18);
+    border:2px solid rgba(255,210,74,.5);border-radius:10px;}
+  .dbtn:active{background:rgba(255,210,74,.4);}
+  #dU{left:50px;top:0}  #dD{left:50px;top:100px} #dL{left:0;top:50px} #dR{left:100px;top:50px}
+  #bA{position:fixed;right:26px;bottom:44px;width:86px;height:86px;border-radius:50%;
+    background:rgba(255,106,213,.25);border:2px solid rgba(255,106,213,.6);color:#ffd6f2;
+    font:900 30px 'Righteous',sans-serif;pointer-events:auto;}
+  #bA:active{transform:scale(.92);}
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="pantalla" width="160" height="144"></canvas></div>
+<a class="back" id="backLink" href="index.html">◀ MENÚ GDM</a>
+
+<div id="tacto">
+  <div class="dpad">
+    <div class="dbtn" id="dU"></div><div class="dbtn" id="dD"></div>
+    <div class="dbtn" id="dL"></div><div class="dbtn" id="dR"></div>
+  </div>
+  <button id="bA">A</button>
+</div>
+
+<div class="screen" id="scrIntro">
+  <div class="eyebrow">GDM presenta · aventura de noche</div>
+  <h1>NOCHES <span class="x">ÁCIDAS</span></h1>
+  <p id="introTxt">Camina, habla con la gente y deja que la noche haga lo suyo.
+  Cuando se te prenda el ojo, los animales espirituales salen a pelear.</p>
+  <div id="chips" class="chips"></div>
+  <p><span class="keys">WASD o flechas</span> caminar · <span class="keys">ESPACIO / ENTER</span> hablar y avanzar el texto<br>
+  En celular: cruceta abajo a la izquierda + botón <b class="keys">A</b></p>
+  <button class="btn" id="btnStart">EMPEZAR LA NOCHE</button>
+  <div class="sub">dos noches del universo GDM · +18</div>
+</div>
+
+<div class="screen hide" id="scrPaso">
+  <div class="eyebrow">✦ se acabó esa noche ✦</div>
+  <h1 id="pasoTitulo">SIGUE</h1>
+  <p id="pasoTexto"></p>
+  <button class="btn" id="btnSigue">LA SIGUIENTE NOCHE</button>
+  <div class="sub">la noche es larga en esta ciudad</div>
+</div>
+
+<div class="screen hide" id="scrFin">
+  <div class="eyebrow" id="finEyebrow">✦ fin de la noche ✦</div>
+  <h1 id="finTitulo">FIN</h1>
+  <p id="finTexto"></p>
+  <button class="btn" id="btnOtra">OTRA NOCHE</button>
+  <div class="sub">lo que pasa en la jato se queda en la jato</div>
+</div>
+
+<script src="gdm-music.js?v=4"></script>
+<script src="gdm-gamepad.js"></script>
+<script>
+/* ============================================================
+   LA JATO · aventura top-down con look Game Boy Color
+   (pantalla nativa 160x144, celdas de 16 px, escalado entero)
+   ============================================================ */
+const CV=document.getElementById('pantalla'), CX=CV.getContext('2d');
+CX.imageSmoothingEnabled=false;
+const W=160, H=144, T=16;          // pantalla y tamaño de celda
+
+/* ---------- escalado entero a la ventana ---------- */
+function ajustar(){
+  const alto=innerHeight-(innerWidth<820?170:0);      // deja sitio a la cruceta en móvil
+  const entera=Math.min(Math.floor(innerWidth/W),Math.floor(alto/H));
+  // en pantallas chicas la escala entera desperdicia media pantalla: ahí se estira
+  const s = entera>=3 ? entera : Math.max(1.6,Math.min(innerWidth/W, alto/H));
+  CV.style.width=Math.round(W*s)+'px'; CV.style.height=Math.round(H*s)+'px';
+}
+addEventListener('resize',ajustar); ajustar();
+
+/* ---------- paleta (dos versiones: sobrio y pasado de vueltas) ---------- */
+const PAL_NORMAL={
+  linea:'#241c30', sombra:'#6a5a80', medio:'#a08fb8', claro:'#dcd0b8', papel:'#f6efdc',
+  madera:'#c89a63', maderaOsc:'#a3763f', pared:'#b3a4c6', paredOsc:'#8f7fa8', paredLuz:'#d6cce6',
+  tela:'#c0475f', telaOsc:'#96324a', verde:'#63a85e', verdeOsc:'#3d7840',
+  agua:'#6d9ad8', metal:'#a8b0bc', metalOsc:'#6b7280', oro:'#e8b33a', neon:'#ff6ad5',
+  piel:'#e8b088', pielOsc:'#b07a56', pelo:'#2e2230'
+};
+let PAL={...PAL_NORMAL};
+const px=(g,x,y,w,h,c)=>{ g.fillStyle=c; g.fillRect(x|0,y|0,Math.max(1,w|0),Math.max(1,h|0)); };
+const rnd=(a,b)=>a+Math.random()*(b-a);
+function lienzo(w,h){ const c=document.createElement('canvas'); c.width=w; c.height=h;
+  const g=c.getContext('2d'); g.imageSmoothingEnabled=false; return {c,g}; }
+
+/* ============================================================
+   FUENTE BITMAP 5x7 (sin antialias, como toca en una GBC)
+   ============================================================ */
+const F5={
+ 'A':'01110100011000111111100011000110001','B':'11110100011000111110100011000111110',
+ 'C':'01110100011000010000100001000101110','D':'11110100011000110001100011000111110',
+ 'E':'11111100001000011110100001000011111','F':'11111100001000011110100001000010000',
+ 'G':'01110100011000010111100011000101111','H':'10001100011000111111100011000110001',
+ 'I':'11111001000010000100001000010011111','J':'00111000100001000010000101001001100',
+ 'K':'10001100101010011000101001001010001','L':'10000100001000010000100001000011111',
+ 'M':'10001110111010110001100011000110001','N':'10001110011010110011100011000110001',
+ 'O':'01110100011000110001100011000101110','P':'11110100011000111110100001000010000',
+ 'Q':'01110100011000110001101011001001101','R':'11110100011000111110101001001010001',
+ 'S':'01111100001000001110000010000111110','T':'11111001000010000100001000010000100',
+ 'U':'10001100011000110001100011000101110','V':'10001100011000110001100010101000100',
+ 'W':'10001100011000110001101011101110001','X':'10001100010101000100010101000110001',
+ 'Y':'10001100010101000100001000010000100','Z':'11111000010001000100010001000011111',
+ 'Ñ':'11010001011000111001110101100110001',
+ '0':'01110100011001110101110011000101110','1':'00100011000010000100001000010001110',
+ '2':'01110100010000100010001000100011111','3':'11111000100010000010000011000101110',
+ '4':'00010001100101010010111110001000010','5':'11111100001111000001000011000101110',
+ '6':'00110010001000011110100011000101110','7':'11111000010001000100010000100001000',
+ '8':'01110100011000101110100011000101110','9':'01110100011000101111000010001001100',
+ ' ':'00000000000000000000000000000000000','.':'00000000000000000000000000110001100',
+ ',':'00000000000000000000000001100011000','!':'00100001000010000100001000000000100',
+ '?':'01110100010000100110001000000000100',':':'00000011000110000000011000110000000',
+ "'":'00100001000010000000000000000000000','-':'00000000000000001111000000000000000',
+ '¿':'00100000000010000100100011000101110','¡':'00100000000010000100001000010000100',
+ '…':'00000000000000000000000000000010101','(':'00010001000100001000010000010000010',
+ ')':'01000001000001000010000100010001000','+':'00000001000010001110000100001000000',
+ '/':'00001000010001000100010001000010000','*':'00000010101011100111010101000000000',
+ '“':'01010010100000000000000000000000000','”':'01010010100000000000000000000000000',
+ '·':'00000000000000000110001100000000000','%':'11001110010001000100010001001110011',
+ '&':'01100100101010001000101011001001101','É':'11111100001000011110100001000011111',
+ 'Á':'01110100011000111111100011000110001','Í':'11111001000010000100001000010011111',
+ 'Ó':'01110100011000110001100011000101110','Ú':'10001100011000110001100011000101110',
+};
+function txt(g,str,x,y,col){
+  let cx=x;
+  for(const ch0 of (str||'').toUpperCase()){
+    const ch=ch0==='\n'?' ':ch0;
+    const gl=F5[ch]||F5['?'];
+    for(let r=0;r<7;r++) for(let c=0;c<5;c++)
+      if(gl[r*5+c]==='1') px(g,cx+c,y+r,1,1,col);
+    cx+=6;
+  }
+  return cx;
+}
+function anchoTxt(str){ return (str||'').length*6; }
+
+/* ============================================================
+   PLANO DE LA JATO  (24 x 20 celdas de 16 px)
+   ============================================================ */
+let NIV=null;                                // la noche que se está jugando
+let MAPA=[], MW=0, MH=0, SOLIDOS='';        // los pone cargarNivel()
+function tileEn(cx,cy){ if(cx<0||cy<0||cx>=MW||cy>=MH) return '#'; return MAPA[cy][cx]; }
+function bloquea(cx,cy){
+  const t=tileEn(cx,cy);
+  if(NIV.abre && NIV.abre.includes(t)) return !estado.puertaAbierta;
+  if(NIV.cerrado){ const r=NIV.cerrado(t,estado); if(r!==undefined) return r; }
+  return SOLIDOS.includes(t);
+}
+
+/* ============================================================
+   TILESET · cada celda se pinta a mano, 16x16
+   ============================================================ */
+function pintaTile(g,t,X,Y,P,cx,cy){
+  const R=(x,y,w,h,c)=>px(g,X+x,Y+y,w,h,c);
+  const EN=(x,y,ch)=>tileEn(x,y)===ch;
+  switch(t){
+    case '.': // parquet: tablones verticales, contraste bajo
+      R(0,0,16,16,P.madera);
+      R(0,0,1,16,P.maderaOsc); R(8,0,1,16,P.maderaOsc);
+      R(4,0,1,16,'#00000012'); R(12,0,1,16,'#00000012');
+      R(0,(cy%2)?8:0,16,1,P.maderaOsc);            // juntas alternadas
+      R(2,3,1,2,P.maderaOsc); R(10,11,1,2,P.maderaOsc);
+      break;
+    case '_': // baldosa de cocina/baño
+      R(0,0,16,16,P.papel);
+      R(0,0,16,1,P.claro); R(0,8,16,1,P.claro); R(0,0,1,16,P.claro); R(8,0,1,16,P.claro);
+      R(1,1,1,1,P.claro); R(9,9,1,1,P.claro);
+      break;
+    case ',': // alfombra de la pista
+      R(0,0,16,16,P.tela);
+      for(let i=0;i<2;i++) for(let j=0;j<2;j++){
+        const ax=i*8+4, ay=j*8+4;
+        for(let k=0;k<3;k++){ R(ax-k,ay-2+k,1+k*2,1,P.telaOsc); R(ax-k,ay+2-k,1+k*2,1,P.telaOsc); }
+      }
+      if(!EN(cx,cy-1,',')) R(0,0,16,2,P.telaOsc);
+      if(!EN(cx,cy+1,',')) R(0,14,16,2,P.telaOsc);
+      if(!EN(cx-1,cy,',')) R(0,0,2,16,P.telaOsc);
+      if(!EN(cx+1,cy,',')) R(14,0,2,16,P.telaOsc);
+      break;
+    case 'o': // piso del balcón (cemento)
+      R(0,0,16,16,P.metalOsc);
+      R(0,0,16,1,'#00000022'); R(0,8,16,1,'#00000022'); R(0,0,1,16,'#00000022');
+      R(3,4,2,1,P.metal); R(11,12,2,1,P.metal);
+      break;
+    case '#': { // papel tapiz; si debajo hay piso, esta celda es la cara con zócalo
+      R(0,0,16,16,P.pared);
+      for(let i=0;i<4;i++) R(i*4+1,0,1,16,P.paredLuz);       // rayado vertical del papel
+      R(0,0,16,1,P.paredOsc);
+      const cara=!'#RWVD'.includes(tileEn(cx,cy+1));
+      if(cara){                                             // cenefa + zócalo
+        R(0,7,16,2,P.paredOsc); R(0,7,16,1,P.paredLuz);
+        R(0,12,16,4,P.maderaOsc); R(0,12,16,1,P.madera); R(0,15,16,1,P.linea);
+      }
+      break; }
+    case 'V': // ventana a la noche
+      R(0,0,16,16,P.pared);
+      for(let i=0;i<4;i++) R(i*4+1,0,1,16,P.paredLuz);
+      R(0,0,16,1,P.paredOsc); R(0,12,16,4,P.maderaOsc); R(0,12,16,1,P.madera);
+      R(1,2,14,10,P.linea); R(2,3,12,8,P.agua);
+      R(2,3,12,3,'#2a2450'); R(4,4,1,1,P.papel); R(9,5,1,1,P.papel); R(11,3,1,1,P.papel);
+      R(7,3,1,8,P.linea); R(2,7,12,1,P.linea);
+      break;
+    case 'R': // refrigeradora
+      R(1,0,14,16,P.metal); R(1,0,14,1,P.papel); R(2,1,12,6,P.metalOsc); R(2,8,12,7,P.metalOsc);
+      R(12,3,1,3,P.papel); R(12,10,1,3,P.papel);
+      R(3,2,4,3,P.oro); R(4,10,3,2,P.tela);   // imanes y stickers
+      break;
+    case 'W': // lavadero con platos sucios
+      R(0,2,16,14,P.metalOsc); R(1,3,14,8,P.metal); R(2,4,12,5,'#3a4450');
+      R(4,3,3,2,P.papel); R(8,3,4,2,P.papel); R(6,2,1,3,P.metal);
+      R(0,11,16,5,P.maderaOsc); R(0,12,16,1,P.madera);
+      break;
+    case 'B': // barra con botellas
+      R(0,4,16,12,P.maderaOsc); R(0,4,16,2,P.madera); R(0,10,16,1,P.linea);
+      R(2,0,3,5,P.verde); R(2,0,1,5,P.verdeOsc); R(3,-1,1,2,P.linea);
+      R(7,1,3,4,P.tela); R(7,1,1,4,P.telaOsc);
+      R(11,0,3,5,P.oro); R(11,0,1,5,P.maderaOsc); R(12,-1,1,2,P.linea);
+      break;
+    case 'm': // mesita con piqueos
+      R(1,3,14,10,P.madera); R(1,3,14,2,P.claro); R(1,12,14,2,P.maderaOsc);
+      R(3,5,4,3,P.oro); R(9,6,4,3,P.tela); R(6,9,4,2,P.papel);
+      break;
+    case 'S': // sofá
+      R(0,1,16,7,P.tela); R(0,1,16,2,'#d86a80'); R(0,8,16,7,P.telaOsc);
+      R(0,8,16,1,P.linea); R(0,15,16,1,P.linea); R(0,1,1,14,P.telaOsc); R(15,1,1,14,P.telaOsc);
+      R(4,10,8,3,'#a83a52');
+      break;
+    case 'M': // mesa de centro con vasos
+      R(1,4,14,9,P.maderaOsc); R(1,4,14,2,P.madera); R(2,13,2,3,P.linea); R(12,13,2,3,P.linea);
+      R(4,1,3,4,P.agua); R(9,2,3,3,P.oro); R(4,1,1,4,P.papel);
+      break;
+    case 'P': // parlante
+      R(1,0,14,16,P.linea); R(2,1,12,14,'#2a2230');
+      R(4,3,8,5,P.metalOsc); R(5,4,6,3,P.metal);
+      R(4,10,8,4,P.metalOsc); R(5,11,6,2,P.metal);
+      R(2,1,12,1,P.metal);
+      break;
+    case 't': // tornamesa / cabina
+      R(0,2,16,13,P.linea); R(1,3,14,11,'#2a2230');
+      R(2,4,6,6,P.metal); R(4,6,2,2,P.linea);          // plato
+      R(9,4,5,3,P.metalOsc); R(10,5,1,1,P.neon); R(12,5,1,1,P.oro);
+      R(2,11,12,2,P.metalOsc); R(3,11,1,2,P.neon); R(6,11,1,2,P.oro); R(9,11,1,2,P.verde);
+      break;
+    case 'E': // estante de discos
+      R(0,0,16,16,P.maderaOsc); R(1,1,14,6,P.linea); R(1,8,14,6,P.linea);
+      for(let i=0;i<6;i++){ R(2+i*2,2,1,4,[P.tela,P.oro,P.verde,P.agua,P.neon,P.papel][i]);
+                            R(2+i*2,9,1,4,[P.oro,P.agua,P.tela,P.papel,P.verde,P.neon][i]); }
+      break;
+    case 'C': // cama
+      R(0,0,16,16,P.maderaOsc);
+      R(1,1,14,14,P.tela); R(1,1,14,4,P.papel);            // almohada
+      R(2,2,12,2,P.claro);
+      R(1,6,14,1,P.telaOsc); R(1,10,14,1,P.telaOsc);
+      R(0,0,1,16,P.maderaOsc); R(15,0,1,16,P.maderaOsc);
+      break;
+    case 'b': // baranda del balcón
+      R(0,4,16,2,P.metal); R(0,10,16,2,P.metal);
+      for(let i=0;i<4;i++) R(2+i*4,4,2,12,P.metalOsc);
+      R(0,0,16,4,'#101018');
+      break;
+    case 'D': // puerta del cuarto
+      if(estado.puertaAbierta){ R(0,0,16,16,'#120c16'); R(1,0,2,16,P.maderaOsc); R(13,0,2,16,P.maderaOsc);
+        R(3,2,10,3,P.neon); }
+      else { R(0,0,16,16,P.maderaOsc); R(2,1,12,14,P.madera); R(3,2,10,5,P.maderaOsc); R(3,9,10,5,P.maderaOsc);
+        R(11,8,2,2,P.oro); }
+      break;
+    case 'x': // puerta de calle
+      R(0,0,16,16,P.linea); R(2,1,12,14,P.maderaOsc); R(3,2,10,12,'#2a1a14'); R(11,8,2,2,P.oro);
+      break;
+    /* ---------- tiles de la NOCHE DE LIMA (Barranco) ---------- */
+    case 'a': { // adoquín del boulevard, mojado por la garúa
+      R(0,0,16,16,P.piedra);
+      const f=(cx*7+cy*13)%3;
+      for(let j=0;j<2;j++) for(let i=0;i<2;i++){
+        const ax=i*8+((j%2)?4:0), ay=j*8;
+        R(ax,ay,7,7,(i+j+f)%2?P.piedra:P.piedraClara);
+        R(ax,ay,7,1,P.piedraLuz); R(ax,ay+6,7,1,P.piedraOsc);
+      }
+      R(0,0,16,1,P.piedraOsc);
+      if(f===2) R(3,10,3,2,P.charco);            // pozas de la garúa
+      break; }
+    case 'v': // vereda de cemento
+      R(0,0,16,16,P.piedraClara);
+      R(0,0,16,1,P.piedraLuz); R(0,15,16,1,P.piedraOsc);
+      R((cx%2)?11:3,5,2,1,P.piedraOsc);
+      break;
+    case 'w': { // casona republicana: zócalo, muro de color y balcón
+      const col=[P.casaA,P.casaB,P.casaC][(cx*3+cy)%3];
+      R(0,0,16,16,col);
+      R(0,0,16,2,P.linea); R(0,2,16,1,'#ffffff22');
+      R(0,12,16,4,P.piedraOsc); R(0,12,16,1,P.piedraClara);
+      if((cx+cy)%3===0){ R(3,4,10,7,P.linea); R(4,5,8,5,P.ventanaLuz);   // ventana encendida
+        R(7,5,1,5,P.linea); R(4,7,8,1,P.linea); }
+      else if((cx+cy)%3===1){ R(2,4,12,6,P.maderaOsc); R(3,5,10,4,P.madera); // balcón
+        for(let i=0;i<5;i++) R(3+i*2,5,1,4,P.maderaOsc); }
+      break; }
+    case 'U': { // muro con mural (Barranco está lleno)
+      R(0,0,16,16,P.linea);
+      R(0,0,16,16,P.mural1);
+      R(2,2,7,9,P.mural2); R(3,3,5,4,P.mural3);       // cara grande
+      R(4,4,1,2,P.linea); R(6,4,1,2,P.linea);
+      R(4,8,4,1,P.linea);
+      R(10,3,4,4,P.mural3); R(11,7,2,6,P.mural2);     // figura al lado
+      R(0,13,16,3,P.piedraOsc); R(0,13,16,1,P.piedraClara);
+      break; }
+    case 'F': // farol colonial
+      R(6,10,4,6,P.metalOsc); R(7,10,1,6,P.metal);        // poste
+      R(4,14,8,2,P.piedraOsc);
+      R(5,2,6,8,P.metalOsc); R(6,3,4,6,P.faroLuz);        // fanal
+      R(6,3,4,1,P.papel); R(7,4,2,4,'#fff6d0');
+      R(5,1,6,1,P.metalOsc); R(7,0,2,1,P.metalOsc);
+      break;
+    case 'G': // reja de fierro
+      R(0,3,16,2,P.metalOsc); R(0,13,16,2,P.metalOsc);
+      for(let i=0;i<5;i++){ R(1+i*3,2,1,13,P.metal); R(1+i*3,1,1,1,P.oro); }
+      break;
+    case 'y': // ficus del parque
+      R(6,11,4,5,P.maderaOsc); R(7,11,1,5,P.madera);
+      R(2,2,12,9,P.verdeOsc); R(3,1,10,4,P.verde);
+      R(4,4,3,2,P.verde); R(9,6,4,2,P.verde);
+      R(5,3,1,1,P.papel); R(11,4,1,1,P.papel);
+      break;
+    case 'k': { // carretilla de anticuchos, con su humo
+      R(1,6,14,8,P.metalOsc); R(1,6,14,2,P.metal);
+      R(2,8,12,4,'#3a1a12'); R(3,9,10,2,P.brasa);           // la brasa
+      for(let i=0;i<4;i++) R(3+i*3,7,1,3,P.maderaOsc);      // los palos
+      R(0,13,16,2,P.linea); R(2,14,3,2,P.metalOsc); R(11,14,3,2,P.metalOsc);
+      R(4,1,2,3,'#ffffff2a'); R(7,0,2,3,'#ffffff22'); R(10,2,2,2,'#ffffff1a');
+      break; }
+    case '=': { // tablones del Puente de los Suspiros
+      R(0,0,16,16,P.puente);
+      R(0,0,16,1,P.puenteOsc); R(0,15,16,1,P.puenteOsc);
+      for(let i=0;i<4;i++) R(i*4,0,1,16,P.puenteOsc);
+      R(2,3,1,1,P.puenteLuz); R(9,11,1,1,P.puenteLuz);
+      R(0,(cy%2)?5:9,16,1,'#00000018');
+      break; }
+    case 'T': // baranda del puente
+      R(0,0,16,16,P.abismo);
+      R(0,9,16,3,P.puente); R(0,9,16,1,P.puenteLuz);
+      R(0,4,16,2,P.puente); R(0,4,16,1,P.puenteLuz);
+      for(let i=0;i<3;i++) R(2+i*6,3,2,13,P.puenteOsc);
+      R(0,14,16,2,P.puenteOsc);
+      break;
+    case 'c': { // el barranco: talud de tierra con maleza
+      R(0,0,16,16,P.tierra);
+      R(0,0,16,2,P.tierraOsc);
+      const f=(cx*5+cy*11)%4;
+      if(f===0){ R(3,6,5,4,P.verdeOsc); R(4,5,3,2,P.verde); }
+      if(f===1){ R(9,9,5,3,P.verdeOsc); R(10,8,3,2,P.verde); }
+      if(f===2){ R(6,3,3,2,P.tierraOsc); R(11,11,3,2,P.tierraOsc); }
+      R(2,12,2,1,P.tierraOsc); R(12,5,2,1,P.tierraOsc);
+      break; }
+    case '~': { // el mar de noche, allá abajo
+      R(0,0,16,16,P.mar);
+      R(0,0,16,2,P.marOsc);
+      const o=Math.floor(((cx*3+cy*7)%5));
+      R(o,4,7,1,P.espuma); R((o+7)%12,9,5,1,P.espuma); R((o+3)%10,13,6,1,P.marLuz);
+      break; }
+    case 'L': // marquesina de LA NOCHE
+      R(0,0,16,16,P.linea);
+      R(0,2,16,10,'#1a0a24');
+      R(1,3,14,8,P.letrero);
+      R(2,4,12,1,P.letreroLuz); R(2,10,12,1,P.letreroLuz);
+      R(3,6,2,3,P.papel); R(6,6,2,3,P.papel); R(9,6,2,3,P.papel); R(12,6,1,3,P.papel);
+      R(0,12,16,4,P.maderaOsc); R(0,12,16,1,P.madera);
+      break;
+    case 'Z': { // tarima del escenario
+      R(0,0,16,16,P.tarima);
+      R(0,0,16,1,P.tarimaLuz);
+      for(let i=0;i<2;i++) R(i*8,0,1,16,P.tarimaOsc);
+      R(0,(cy%2)?7:11,16,1,P.tarimaOsc);
+      const cara=!'ZdqP'.includes(tileEn(cx,cy+1));
+      if(cara){ R(0,11,16,5,P.tarimaOsc); R(0,11,16,1,P.tarima);
+        for(let i=0;i<4;i++) R(1+i*4,13,2,1,P.oro); }   // luces del borde
+      break; }
+    case 'd': // batería
+      R(0,0,16,16,P.tarima);
+      R(3,6,10,9,P.metalOsc); R(4,7,8,7,P.tela);        // bombo
+      R(6,9,4,4,P.papel); R(7,10,2,2,P.linea);
+      R(1,3,6,2,P.metal); R(9,2,6,2,P.metal);           // platillos
+      R(3,1,2,3,P.metalOsc); R(11,0,2,3,P.metalOsc);
+      R(0,5,3,2,P.oro); R(13,4,3,2,P.oro);
+      break;
+    case 'q': // amplificador con su lucecita
+      R(1,4,14,12,P.linea); R(2,5,12,10,'#2a2230');
+      R(3,6,10,6,P.metalOsc);
+      for(let i=0;i<5;i++) for(let j=0;j<3;j++) R(3+i*2,6+j*2,1,1,P.metal);
+      R(3,13,3,1,P.metal); R(12,13,1,1,P.brasa);
+      break;
+    case '^': { // azotea de la casona (lo que se ve arriba de la fachada)
+      R(0,0,16,16,P.piedraOsc);
+      R(0,0,16,3,P.linea);                                  // parapeto
+      R(0,3,16,1,P.piedra);
+      const f=(cx*3+cy*5)%4;
+      if(f===0){ R(3,7,6,5,P.metalOsc); R(3,6,6,2,P.metal); R(5,5,2,2,P.metalOsc); }  // tanque de agua
+      if(f===1){ R(9,8,5,2,P.maderaOsc); R(10,6,1,3,P.maderaOsc); R(12,6,1,3,P.maderaOsc); } // trastes
+      if(f===2){ R(2,10,12,1,P.piedra); R(4,9,1,2,P.papel); R(8,9,1,2,P.tela); }      // ropa tendida
+      R(0,14,16,2,P.linea);
+      break; }
+    case 's': // escalera que sube
+      R(0,0,16,16,P.maderaOsc);
+      for(let i=0;i<4;i++){ R(1,1+i*4,14,3,P.madera); R(1,1+i*4,14,1,P.claro); }
+      R(0,0,1,16,P.linea); R(15,0,1,16,P.linea);
+      R(6,1,4,1,P.papel);
+      break;
+    case 'j': // escalera que baja
+      R(0,0,16,16,'#0d0a12');
+      for(let i=0;i<4;i++){ R(1+i,3+i*3,14-i*2,2,P.maderaOsc); R(1+i,3+i*3,14-i*2,1,P.madera); }
+      R(0,0,16,2,P.linea);
+      break;
+    default: R(0,0,16,16,P.pared);
+  }
+}
+
+/* ---------- el mapa se pinta una vez a un lienzo grande ---------- */
+let MAPACV=null;
+function pintaMapa(){
+  const {c,g}=lienzo(MW*T,MH*T);
+  for(let y=0;y<MH;y++) for(let x=0;x<MW;x++) pintaTile(g,MAPA[y][x],x*T,y*T,PAL,x,y);
+  MAPACV=c;
+}
+
+
+/* ============================================================
+   PERSONAJES · 16x16, tres direcciones (abajo / arriba / lado)
+   ============================================================ */
+function pintaPersona(g,X,Y,cfg,dir,paso,P){
+  const R=(x,y,w,h,c)=>px(g,X+x,Y+y,w,h,c);
+  const piel=cfg.piel||P.piel, pelo=cfg.pelo||P.pelo, ropa=cfg.ropa, ropa2=cfg.ropa2||ropa;
+  const b=paso?1:0;                       // bamboleo del paso
+  // sombra
+  R(3,15,10,1,'#00000033');
+  if(dir==='arriba'){
+    R(4,2,8,6,pelo); R(3,3,10,4,pelo);                 // nuca
+    R(4,8,8,6,ropa); R(3,9,1,4,ropa2); R(12,9,1,4,ropa2);
+    R(5,14-b,2,2,'#241a20'); R(9,14+b-1,2,2,'#241a20');
+  } else if(dir==='izq'||dir==='der'){
+    const f=(dir==='der')?1:-1, o=(dir==='der')?0:0;
+    R(4,2,8,6,pelo);
+    R(5,4,6,5,piel);                                    // cara de perfil
+    R(dir==='der'?9:5,5,2,1,'#241a20');                 // ojo
+    R(dir==='der'?11:4,6,1,1,piel);                     // nariz
+    R(4,8,8,6,ropa); R(dir==='der'?11:4,9,1,4,ropa2);
+    R(5,14-b,3,2,'#241a20'); R(8,14+b-1,3,2,'#241a20');
+  } else { // abajo
+    R(4,2,8,4,pelo); R(3,3,10,3,pelo);
+    R(4,5,8,5,piel); R(4,5,8,1,pelo);
+    R(5,7,2,2,'#241a20'); R(9,7,2,2,'#241a20');         // ojos
+    if(cfg.sonrie) R(7,9,2,1,'#241a20');
+    R(4,10,8,4,ropa); R(3,11,1,3,ropa2); R(12,11,1,3,ropa2);
+    if(cfg.detalle) R(6,11,4,2,cfg.detalle);
+    R(5,14-b,2,2,'#241a20'); R(9,14+b-1,2,2,'#241a20');
+  }
+  if(cfg.melena){                                     // pelo largo hasta los hombros
+    const pl=cfg.pelo||P.pelo;
+    if(dir==='arriba'){ R(2,6,12,7,pl); R(3,13,10,1,pl); }
+    else if(dir==='izq'||dir==='der'){ R(3,3,10,8,pl); R(dir==='der'?3:12,4,1,7,pl); R(5,4,6,5,piel);
+      R(dir==='der'?9:5,5,2,1,'#241a20'); R(dir==='der'?11:4,6,1,1,piel); R(4,8,8,6,ropa); }
+    else { R(2,3,3,9,pl); R(11,3,3,9,pl); R(3,2,10,3,pl);
+      R(4,5,8,5,piel); R(4,5,8,1,pl);
+      R(5,7,2,2,'#241a20'); R(9,7,2,2,'#241a20');
+      if(cfg.sonrie) R(7,9,2,1,'#241a20');
+      R(4,10,8,4,ropa); if(cfg.detalle) R(6,11,4,2,cfg.detalle); }
+  }
+  if(cfg.gorro){ R(3,1,10,3,cfg.gorro); R(3,3,10,1,'#00000044'); }
+  if(cfg.audio){ R(2,3,2,4,cfg.audio); R(12,3,2,4,cfg.audio); R(3,1,10,2,cfg.audio); }
+  if(cfg.vaso && dir!=='arriba'){ R(dir==='izq'?1:13,9,3,4,P.oro); R(dir==='izq'?1:13,9,3,1,P.papel); }
+  if(cfg.humo){ R(12,4,1,1,'#e8e0d0'); R(13,2,1,1,'#c8c0b8'); }
+}
+
+/* ============================================================
+   ELENCO
+   ============================================================ */
+const YO={cx:1,cy:13,dir:'der',ox:0,oy:0,mov:false,paso:0,animT:0,
+  cfg:{ropa:'#3fa9c9',ropa2:'#2a7f9c',pelo:'#2e2230',detalle:'#ffd24a'}};
+
+let NPCS=[];                                 // los pone cargarNivel()
+
+/* ============================================================
+   GUION
+   ============================================================ */
+const estado={nivel:0,fase:'normal',tomo:false,conecta:{},
+  puertaAbierta:false,invitados:false,fin:false,t:0,psicoT:0,
+  flags:{},                                  // hitos propios de cada noche
+  retado:{},ganadas:{}};
+
+let CHARLA={}, RETOS={};                     // los pone cargarNivel()
+
+const dlg={activo:false,lineas:[],i:0,txt:'',n:0,t:0,nombre:'',luego:null};
+function hablar(lineas,nombre,luego){
+  dlg.activo=true; dlg.lineas=lineas.slice(); dlg.i=0; dlg.txt=dlg.lineas[0]; dlg.n=0; dlg.t=0;
+  dlg.nombre=nombre||''; dlg.luego=luego||null;
+}
+function avanzarDlg(){
+  if(!dlg.activo) return;
+  if(dlg.n<dlg.txt.length){ dlg.n=dlg.txt.length; return; }   // primer toque: completa la línea
+  dlg.i++;
+  if(dlg.i>=dlg.lineas.length){ dlg.activo=false; const f=dlg.luego; dlg.luego=null; if(f) f(); }
+  else { dlg.txt=dlg.lineas[dlg.i]; dlg.n=0; dlg.t=0; }
+}
+
+/* ---------- interacción ---------- */
+function npcEn(cx,cy){ return NPCS.find(n=>n.cx===cx&&n.cy===cy); }
+/* ¿le falta ganar alguna batalla previa para que este lo rete? */
+function faltanRetos(R){
+  if(!R.requiere) return false;
+  const lista=Array.isArray(R.requiere)?R.requiere:[R.requiere];
+  return lista.some(k=>!estado.ganadas[k]);
+}
+function mirarA(n){
+  const dx=YO.cx-n.cx, dy=YO.cy-n.cy;
+  if(Math.abs(dx)>Math.abs(dy)) n.dir=dx>0?'der':'izq'; else n.dir=dy>0?'abajo':'arriba';
+}
+function interactuar(){
+  if(bat.activa){ inputBatalla('a'); return; }
+  if(dlg.activo){ avanzarDlg(); return; }
+  if(estado.fin) return;
+  const d={abajo:[0,1],arriba:[0,-1],izq:[-1,0],der:[1,0]}[YO.dir];
+  const tx=YO.cx+d[0], ty=YO.cy+d[1];
+  let n=npcEn(tx,ty);
+  if(!n && 'BMm'.includes(tileEn(tx,ty))) n=npcEn(tx+d[0],ty+d[1]);   // atender desde el otro lado del mostrador
+  if(n){ if(!n.dormido) mirarA(n); charlarCon(n); return; }
+  const t=tileEn(tx,ty);
+  const m=NIV.mirar && NIV.mirar[t];
+  if(m){ const v=(typeof m==='function')?m(estado):m; if(v) hablar(v.lineas||v,v.nom||m.nom||''); }
+}
+
+function charlarCon(n){
+  const c=CHARLA[n.id]; if(!c) return;
+  if(NIV.hablar && NIV.hablar(n,c,estado)) return;      // el guion de la noche manda primero
+  if(n.reta){                                     // los que retan: revancha al hablarles
+    const R=RETOS[n.reta];
+    if(estado.ganadas[n.reta]){ hablar(c.hecho,n.nom); return; }
+    if(R.fase!==estado.fase){ hablar(c[estado.fase]||c.normal,n.nom); return; }
+    if(faltanRetos(R)){ hablar(c.espera||c.normal,n.nom); return; }
+    hablar(c[estado.fase]||c.normal,n.nom,()=>{ estado.retado[n.reta]=true; retar(n.reta); });
+    return;
+  }
+  if(estado.fase==='normal'){ hablar(c.normal,n.nom); return; }
+  // ---- fase psicodélica ----
+  if(NIV.conectan && NIV.conectan.includes(n.id)){
+    if(estado.conecta[n.id]) { hablar(c.hecho||c.psico,n.nom); return; }
+    hablar(c.psico,n.nom,()=>{ estado.conecta[n.id]=true; revisarTrio(); });
+    return;
+  }
+  hablar(c.psico||c.normal,n.nom);
+}
+
+/* hitos de la noche, para la tarjeta del menú GDM */
+function guardaHitos(){
+  try{
+    let n=estado.tomo?1:0;
+    for(const k of Object.keys(RETOS)) if(estado.ganadas[k]) n++;
+    const clave='gdm_jato_hitos_'+NIV.id;
+    const prev=parseInt(localStorage.getItem(clave)||'0',10)||0;
+    if(n>prev) localStorage.setItem(clave,String(n));
+    // la tarjeta del menú muestra los hitos de la primera noche (compatibilidad)
+    if(NIV.id==='jato'){
+      const p2=parseInt(localStorage.getItem('gdm_jato_hitos')||'0',10)||0;
+      if(n>p2) localStorage.setItem('gdm_jato_hitos',String(n));
+    }
+  }catch(e){}
+}
+/* noches desbloqueadas: se abre la siguiente al terminar una */
+function nochesAbiertas(){
+  try{ return Math.max(1,Math.min(NIVELES.length,parseInt(localStorage.getItem('gdm_noches_abiertas')||'1',10)||1)); }
+  catch(e){ return 1; }
+}
+function abrirNoche(i){
+  try{ if(i+1>nochesAbiertas()) localStorage.setItem('gdm_noches_abiertas',String(Math.min(NIVELES.length,i+1))); }catch(e){}
+}
+function viaje(){                         // se prende el ojo: cambia la paleta y salen los retadores
+  estado.tomo=true; estado.fase='psico'; estado.psicoT=0;
+  guardaHitos();
+  YO.cfg.vaso=0;
+  PAL={...NIV.palPsico}; pintaMapa();
+  if(window.GDMPad&&GDMPad.rumble) GDMPad.rumble(0.7,0.5,500);
+  if(NIV.alViajar) NIV.alViajar(estado);
+  setTimeout(()=>hablar(NIV.textoViaje,''),1500);
+}
+
+function revisarTrio(){
+  if(estado.invitados) return;
+  for(const id of (NIV.conectan||[])) if(!estado.conecta[id]) return;
+  if(NIV.faltaParaElFinal && NIV.faltaParaElFinal(estado)) return;
+  estado.invitados=true;
+  setTimeout(()=>{
+    if(NIV.alJuntarse) NIV.alJuntarse(estado);
+    estado.puertaAbierta=true; pintaMapa();
+    hablar(NIV.textoJuntarse,'');
+  },320);
+}
+
+
+/* ============================================================
+   PALETA PASADA DE VUELTAS (la del tripi)
+   ============================================================ */
+/* ============================================================
+   ENTRADA
+   ============================================================ */
+const teclas={};
+/* El mando manda DOS teclas por cada dirección (ArrowUp y w, ArrowLeft y a…) para
+   que funcione en todos los juegos, y ✕ puede llegar como ' ' y 'Enter' a la vez.
+   En el mapa da igual (se lee el estado), pero en el menú de la batalla cada tecla
+   es UN toque: el cursor se movía dos veces y volvía al mismo sitio — el mando
+   parecía muerto. Por eso las teclas se agrupan y solo cuenta la primera del grupo. */
+const TECLAS_DE={ izq:['ArrowLeft','a','A'], der:['ArrowRight','d','D'],
+                  arriba:['ArrowUp','w','W'], abajo:['ArrowDown','s','S'],
+                  accion:[' ','Enter','z','Z','k','K'] };
+const GRUPO_DE={};
+for(const g in TECLAS_DE) for(const t of TECLAS_DE[g]) GRUPO_DE[t]=g;
+const grupoYaPulsado=g=>TECLAS_DE[g].some(t=>teclas[t]);
+addEventListener('keydown',e=>{
+  const k=e.key;
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(k)) e.preventDefault();
+  if(!teclas[k]){
+    const g=GRUPO_DE[k], repetida=g&&grupoYaPulsado(g);
+    teclas[k]=true;
+    if(repetida) return;                       // es la tecla gemela del mando
+    if(bat.activa){
+      if(g&&g!=='accion') inputBatalla(g);
+      else if(g==='accion') inputBatalla('a');
+      return;
+    }
+    if(g==='accion') interactuar();
+    return;
+  }
+  teclas[k]=true;
+});
+addEventListener('keyup',e=>{ teclas[e.key]=false; });
+const tacto={u:0,d:0,l:0,r:0};
+(function(){
+  const esTacto=('ontouchstart' in window)||navigator.maxTouchPoints>0||
+                matchMedia('(pointer:coarse)').matches||innerWidth<820;
+  if(esTacto) document.getElementById('tacto').classList.add('on');
+  const liga=(id,k)=>{ const el=document.getElementById(id);
+    const on=e=>{e.preventDefault(); tacto[k]=1;
+      if(bat.activa) inputBatalla({u:'arriba',d:'abajo',l:'izq',r:'der'}[k]); },
+          off=e=>{e.preventDefault(); tacto[k]=0;};
+    el.addEventListener('touchstart',on,{passive:false}); el.addEventListener('touchend',off,{passive:false});
+    el.addEventListener('mousedown',on); el.addEventListener('mouseup',off); el.addEventListener('mouseleave',off); };
+  liga('dU','u'); liga('dD','d'); liga('dL','l'); liga('dR','r');
+  const a=document.getElementById('bA');
+  const pulsa=e=>{e.preventDefault(); interactuar();};
+  a.addEventListener('touchstart',pulsa,{passive:false}); a.addEventListener('mousedown',pulsa);
+})();
+
+/* ============================================================
+   MOVIMIENTO (de celda en celda, como toca)
+   ============================================================ */
+const VEL=5.4;                                    // celdas por segundo
+function libre(cx,cy){
+  if(bloquea(cx,cy)) return false;
+  if(npcEn(cx,cy)) return false;
+  return true;
+}
+function moverJugador(dt){
+  if(YO.mov){
+    const paso=VEL*T*dt;
+    if(YO.ox>0){ YO.ox=Math.max(0,YO.ox-paso); } else if(YO.ox<0){ YO.ox=Math.min(0,YO.ox+paso); }
+    if(YO.oy>0){ YO.oy=Math.max(0,YO.oy-paso); } else if(YO.oy<0){ YO.oy=Math.min(0,YO.oy+paso); }
+    YO.animT+=dt; if(YO.animT>0.12){ YO.animT=0; YO.paso^=1; }
+    if(YO.ox===0&&YO.oy===0){ YO.mov=false; pisar(); }
+    return;
+  }
+  if(dlg.activo||estado.fin||bat.activa) return;
+  let dx=0,dy=0;
+  if(teclas['ArrowUp']||teclas['w']||teclas['W']||tacto.u) dy=-1;
+  else if(teclas['ArrowDown']||teclas['s']||teclas['S']||tacto.d) dy=1;
+  else if(teclas['ArrowLeft']||teclas['a']||teclas['A']||tacto.l) dx=-1;
+  else if(teclas['ArrowRight']||teclas['d']||teclas['D']||tacto.r) dx=1;
+  if(!dx&&!dy){ YO.paso=0; return; }
+  YO.dir = dy<0?'arriba' : dy>0?'abajo' : dx<0?'izq':'der';
+  const nx=YO.cx+dx, ny=YO.cy+dy;
+  if(!libre(nx,ny)) { YO.animT+=dt; if(YO.animT>0.2){YO.animT=0;YO.paso^=1;} return; }
+  YO.cx=nx; YO.cy=ny; YO.ox=-dx*T; YO.oy=-dy*T; YO.mov=true;
+}
+function ojoDelRetador(){
+  if(bat.activa||dlg.activo||estado.fin) return;
+  for(const n of NPCS){
+    if(!n.reta || estado.retado[n.reta] || estado.ganadas[n.reta]) continue;
+    if(RETOS[n.reta].fase!==estado.fase) continue;
+    if(faltanRetos(RETOS[n.reta])) continue;
+    const d={abajo:[0,1],arriba:[0,-1],izq:[-1,0],der:[1,0]}[n.dir];
+    for(let i=1;i<=4;i++){
+      const cx=n.cx+d[0]*i, cy=n.cy+d[1]*i;
+      if(bloquea(cx,cy)) break;
+      if(YO.cx===cx&&YO.cy===cy){
+        estado.retado[n.reta]=true; n.alerta=1.1;
+        setTimeout(()=>retar(n.reta),750);
+        return;
+      }
+    }
+  }
+}
+
+function pisar(){
+  if(estado.fin||dlg.activo||bat.activa) return;
+  const t=tileEn(YO.cx,YO.cy);
+  if(NIV.escaleras && NIV.escaleras[t]){                 // subir o bajar de piso
+    const d=NIV.escaleras[t];
+    YO.cx=d[0]; YO.cy=d[1]; YO.ox=0; YO.oy=0; YO.mov=false;
+    if(d[2]) YO.dir=d[2];
+    return;
+  }
+  if(NIV.alPisar && NIV.alPisar(t,estado)) return;
+  if(NIV.tileFinal===t && estado.puertaAbierta) finalDeLaNoche();
+}
+
+/* ============================================================
+   FINAL
+   ============================================================ */
+let fundido=0;
+function finalDeLaNoche(){
+  estado.fin=true;
+  abrirNoche(estado.nivel+1);
+  hablar(NIV.textoFinal,'',()=>{
+    const subir=()=>{ fundido=Math.min(1,fundido+0.02);
+      if(fundido<1) requestAnimationFrame(subir);
+      else setTimeout(()=>{
+        const hay=NIVELES[estado.nivel+1];
+        if(hay){                                        // queda otra noche por delante
+          document.getElementById('pasoTitulo').textContent=hay.nom;
+          document.getElementById('pasoTexto').textContent=NIV.cierre+' '+hay.enganche;
+          document.getElementById('scrPaso').classList.remove('hide');
+        }else{
+          document.getElementById('finTexto').textContent=NIV.cierre;
+          document.getElementById('scrFin').classList.remove('hide');
+        }
+      },700); };
+    subir();
+  });
+}
+
+/* ============================================================
+   DIBUJO
+   ============================================================ */
+const BUF=lienzo(W,H), TRAIL=lienzo(W,H);
+const cam={x:0,y:0};
+
+function partirTexto(str){
+  const out=[];
+  for(const trozo of String(str).split('\n')){
+    let linea='';
+    for(const pal of trozo.split(' ')){
+      if((linea+' '+pal).trim().length>22){ out.push(linea.trim()); linea=pal; }
+      else linea+=' '+pal;
+    }
+    out.push(linea.trim());
+  }
+  return out;
+}
+function cajaDialogo(g){
+  const y0=H-46;
+  px(g,0,y0,W,46,PAL.linea);
+  px(g,2,y0+2,W-4,42,'#f8f4e8');
+  px(g,4,y0+4,W-8,38,'#f8f4e8');
+  px(g,3,y0+3,W-6,1,PAL.sombra); px(g,3,y0+42,W-6,1,PAL.sombra);
+  if(dlg.nombre){
+    const an=anchoTxt(dlg.nombre)+6;
+    px(g,4,y0-9,an,10,PAL.linea); px(g,5,y0-8,an-2,8,'#f8f4e8');
+    txt(g,dlg.nombre,7,y0-7,PAL.linea);
+  }
+  const lineas=partirTexto(dlg.txt.slice(0,dlg.n));
+  lineas.slice(0,3).forEach((l,i)=>txt(g,l,8,y0+8+i*11,'#241a20'));
+  if(dlg.n>=dlg.txt.length && Math.floor(estado.t*3)%2)
+    { px(g,W-14,y0+34,5,1,'#241a20'); px(g,W-13,y0+35,3,1,'#241a20'); px(g,W-12,y0+36,1,1,'#241a20'); }
+}
+
+function objetivo(g){
+  const t=NIV.objetivo(estado);
+  if(!t) return;
+  const an=anchoTxt(t)+6;
+  px(g,2,2,an,11,'#00000088'); px(g,2,2,an,1,PAL.papel); px(g,2,12,an,1,PAL.papel);
+  txt(g,t,5,4,PAL.papel);
+}
+
+function dibujar(){
+  const g=BUF.g;
+  // cámara centrada en el jugador, sin salirse del plano
+  const px0=YO.cx*T+YO.ox, py0=YO.cy*T+YO.oy;
+  cam.x=Math.max(0,Math.min(MW*T-W, px0+T/2-W/2));
+  cam.y=Math.max(0,Math.min(MH*T-H, py0+T/2-H/2));
+  g.clearRect(0,0,W,H);
+  if(MAPACV) g.drawImage(MAPACV,-cam.x,-cam.y);
+
+  // gente ordenada por profundidad
+  const cosas=NPCS.map(n=>({y:n.cy,dib:()=>{
+    let salto=0;
+    if(n.baila) salto=Math.abs(Math.sin(estado.t*(estado.fase==='psico'?9:6)+n.cx))*3|0;
+    const paso=n.baila?(Math.floor(estado.t*6+n.cx)%2):(n.dormido?0:Math.floor(estado.t*1.5+n.cy)%2);
+    pintaPersona(g,n.cx*T-cam.x,n.cy*T-cam.y-salto,n.cfg,n.dormido?'abajo':n.dir,paso,PAL);
+    if(n.dormido && Math.floor(estado.t*2)%2) txt(g,'Z',n.cx*T-cam.x+11,n.cy*T-cam.y-4,PAL.papel);
+    if(n.alerta>0){ const ax=n.cx*T-cam.x+6, ay=n.cy*T-cam.y-9;
+      px(g,ax-2,ay-1,9,11,PAL.linea); px(g,ax-1,ay,7,9,'#f8f4e8'); txt(g,'!',ax,ay+1,PAL.linea); }
+    if(estado.fase==='psico'&&estado.conecta[n.id]&&Math.floor(estado.t*4)%2)
+      { const hx=n.cx*T-cam.x+6, hy=n.cy*T-cam.y-6;
+        px(g,hx,hy+1,4,3,PAL.neon); px(g,hx+1,hy,1,1,PAL.neon); px(g,hx+3,hy,1,1,PAL.neon); px(g,hx+1,hy+4,2,1,PAL.neon); }
+  }}));
+  cosas.push({y:YO.cy,dib:()=>pintaPersona(g,px0-cam.x,py0-cam.y,YO.cfg,YO.dir,YO.paso,PAL)});
+  cosas.sort((a,b)=>a.y-b.y).forEach(o=>o.dib());
+
+  // luces que barren la pista
+  if(estado.fase==='psico' && NIV.luces){
+    for(let i=0;i<3;i++){
+      const a=estado.t*1.4+i*2.1;
+      const lx=(NIV.luces[0]+Math.cos(a)*3.5)*T-cam.x, ly=(NIV.luces[1]+Math.sin(a*1.3)*2)*T-cam.y;
+      g.globalAlpha=0.18+0.1*Math.sin(estado.t*6+i);
+      px(g,lx-10,ly-10,26,26,[PAL.neon,PAL.agua,PAL.verde][i]);
+      g.globalAlpha=1;
+    }
+  }
+  // notas que salen de los parlantes
+  (NIV.notas||[]).forEach((n,i)=>{
+    const b=(estado.t*0.55+i*0.25)%1;
+    const bx=n[0]*T-cam.x+4, by=n[1]*T-cam.y+8-b*26;
+    if(bx>-8&&bx<W+8&&by>-8&&by<H){
+      const col=estado.fase==='psico'?[PAL.neon,PAL.agua,PAL.verde,PAL.oro][i%4]:PAL.papel;
+      px(g,bx,by,1,4,col); px(g,bx+1,by+3,2,2,col); px(g,bx,by,3,1,col);
+    }
+  });
+  if(NIV.pintaExtra) NIV.pintaExtra(g,cam,estado);
+  if(!dlg.activo && !estado.fin) objetivo(g);
+  if(dlg.activo) cajaDialogo(g);
+
+  // ---- a la pantalla ----
+  CX.clearRect(0,0,W,H);
+  if(estado.fase==='psico'){
+    const amp=Math.min(3,estado.psicoT*0.8);
+    CX.drawImage(BUF.c,0,0);                       // fondo, para que la onda no deje huecos
+    for(let y=0;y<H;y++){
+      const off=Math.round(Math.sin(estado.t*2.2+y*0.09)*amp);
+      CX.drawImage(BUF.c,0,y,W,1,off,y,W,1);
+    }
+    CX.globalAlpha=0.34; CX.drawImage(TRAIL.c,0,0); CX.globalAlpha=1;
+    tinte(estado.t);
+    TRAIL.g.clearRect(0,0,W,H); TRAIL.g.drawImage(CV,0,0);
+  } else {
+    CX.drawImage(BUF.c,0,0);
+  }
+  if(fundido>0){ CX.fillStyle='rgba(10,4,16,'+fundido+')'; CX.fillRect(0,0,W,H);
+    if(fundido>0.35){ const n=6;
+      for(let i=0;i<n;i++){ const a=estado.t*1.6+i*1.05, hx=80+Math.cos(a)*40, hy=72+Math.sin(a*0.8)*30;
+        CX.fillStyle=['#ff2ad0','#ffe83a','#00e0ff'][i%3];
+        CX.fillRect(hx-2,hy,5,4); CX.fillRect(hx-1,hy-1,1,1); CX.fillRect(hx+1,hy-1,1,1); CX.fillRect(hx,hy+4,1,1); } }
+  }
+}
+
+/* ---------- ciclo de color del viaje ---------- */
+const cacheTinte=new Map();
+function tinte(t){
+  const im=CX.getImageData(0,0,W,H), d=new Uint32Array(im.data.buffer);
+  const giro=(t*40)%360; cacheTinte.clear();
+  for(let i=0;i<d.length;i++){
+    const c=d[i]; let n=cacheTinte.get(c);
+    if(n===undefined){ n=giraTono(c,giro); cacheTinte.set(c,n); }
+    d[i]=n;
+  }
+  CX.putImageData(im,0,0);
+}
+function giraTono(c,grados){
+  const a=(c>>>24)&255; if(!a) return c;
+  const r=c&255, g=(c>>>8)&255, b=(c>>>16)&255;
+  const max=Math.max(r,g,b)/255, min=Math.min(r,g,b)/255, l=(max+min)/2;
+  let h=0, s=0;
+  if(max!==min){ const dd=max-min;
+    s=l>0.5?dd/(2-max-min):dd/(max+min);
+    const rr=r/255, gg=g/255, bb=b/255;
+    h = max===rr ? (gg-bb)/dd+(gg<bb?6:0) : max===gg ? (bb-rr)/dd+2 : (rr-gg)/dd+4;
+    h*=60;
+  }
+  h=(h+grados)%360; s=Math.min(1,s*1.15);
+  const C=(1-Math.abs(2*l-1))*s, X=C*(1-Math.abs(((h/60)%2)-1)), m=l-C/2;
+  let R=0,G=0,B=0;
+  if(h<60){R=C;G=X;} else if(h<120){R=X;G=C;} else if(h<180){G=C;B=X;}
+  else if(h<240){G=X;B=C;} else if(h<300){R=X;B=C;} else {R=C;B=X;}
+  return (a<<24)|((((B+m)*255)|0)<<16)|((((G+m)*255)|0)<<8)|(((R+m)*255)|0);
+}
+
+/* ============================================================
+   BUCLE
+   ============================================================ */
+let ultimo=performance.now(), corriendo=false;
+function bucle(ahora){
+  requestAnimationFrame(bucle);
+  const dt=Math.min(0.05,(ahora-ultimo)/1000); ultimo=ahora;
+  if(!corriendo) return;
+  if(window.GDM_HOLD){                              // pausa / pantalla de controles
+    if(typeof bat!=='undefined' && bat.activa) dibujarBatalla(); else dibujar();
+    return;
+  }
+  estado.t+=dt;
+  if(estado.fase==='psico') estado.psicoT+=dt;
+  if(dlg.activo && dlg.n<dlg.txt.length){ dlg.t+=dt; if(dlg.t>0.022){ dlg.t=0; dlg.n++; } }
+  for(const n of NPCS) if(n.alerta>0) n.alerta-=dt;
+  if(bat.activa){
+    bat.sacudida=Math.max(0,bat.sacudida-dt);
+    bat.flash=Math.max(0,bat.flash-dt);
+    bat.barrido=Math.max(0,bat.barrido-dt*2.4);
+    dibujarBatalla();
+  } else {
+    moverJugador(dt);
+    ojoDelRetador();
+    dibujar();
+  }
+}
+requestAnimationFrame(bucle);
+
+
+
+/* ============================================================
+   DATOS DE LA NOCHE 1 · LA JATO  (plano, elenco y diálogos)
+   ============================================================ */
+const MAPA_JATO=[
+"########################",
+"#R__W___B#..V....V....V#",
+"#________#.............#",
+"#___B____#...,,,,,,,,..#",
+"#________..P.,,,,,,,,.P#",
+"#________#...,,,,,,,,..#",
+"#__m_____#...,,,,,,,,..#",
+"####.####t.............#",
+"#........#....SSS......#",
+"#..E.....#.....M.......#",
+"#........#.............#",
+"#........#.............#",
+"####.#####......###.####",
+"x......................#",
+"#......................#",
+"####D#####.##.###.b##b##",
+"#......#.._.._#..oooooo#",
+"#..CC..#.._.._#..oooooo#",
+"#..CC..#......#..oooooo#",
+"########################",
+];
+
+const PAL_PSICO_JATO={
+  linea:'#1a0a2a', sombra:'#5a1a6a', medio:'#c93fa0', claro:'#8affd0', papel:'#fff3a0',
+  madera:'#c04ad0', maderaOsc:'#6a1a9a', pared:'#2a6ad0', paredOsc:'#1a3a9a', paredLuz:'#3f86e0',
+  tela:'#ff5a3a', telaOsc:'#c01a6a', verde:'#8aff2a', verdeOsc:'#2ac04a',
+  agua:'#00e0ff', metal:'#ff9ae0', metalOsc:'#8a3ac0', oro:'#ffe83a', neon:'#ff2ad0',
+  piel:'#ffc8a0', pielOsc:'#c07a9a', pelo:'#3a1a5a'
+};
+
+const NPCS_JATO=[
+ {id:'zambrano',nom:'ZAMBRANO',cx:7,cy:13,dir:'abajo',baila:false,
+  cfg:{ropa:'#c94a3f',ropa2:'#8f2f28',pelo:'#1a1418',gorro:'#ffd24a',sonrie:1,vaso:1}},
+ {id:'chino',nom:'EL CHINO',cx:4,cy:2,dir:'abajo',baila:false,
+  cfg:{ropa:'#f0e6d0',ropa2:'#c8bca8',pelo:'#141018',detalle:'#c94a3f'}},
+ {id:'meche',nom:'MECHE',cx:16,cy:5,dir:'abajo',baila:true,
+  cfg:{ropa:'#ff6ad5',ropa2:'#c93fa0',pelo:'#6a2a52',sonrie:1}},
+ {id:'chola',nom:'LA CHOLA',cx:10,cy:7,dir:'abajo',baila:true,
+  cfg:{ropa:'#5a4ad0',ropa2:'#3a2f9c',pelo:'#241820',audio:'#ffd24a'}},
+ {id:'rosa',nom:'ROSA',cx:14,cy:8,dir:'abajo',baila:false,
+  cfg:{ropa:'#e04a7a',ropa2:'#a82f58',pelo:'#3a1e28',melena:1,sonrie:1,vaso:1}},
+ {id:'mila',nom:'MILA',cx:19,cy:17,dir:'abajo',baila:false,
+  cfg:{ropa:'#3f7a4a',ropa2:'#2a5a34',pelo:'#241a14',melena:1,humo:1,sonrie:1}},
+ {id:'kike',nom:'KIKE',cx:18,cy:14,dir:'abajo',baila:false,dormido:true,
+  cfg:{ropa:'#8a7a5a',ropa2:'#6a5a42',pelo:'#3a2a1e'}},
+ {id:'flaca',nom:'LA FLACA',cx:10,cy:14,dir:'arriba',baila:false,
+  cfg:{ropa:'#e0c04a',ropa2:'#b09a2a',pelo:'#4a2a1e'}},
+ {id:'primo',nom:'EL PRIMO',cx:14,cy:4,dir:'abajo',baila:true,
+  cfg:{ropa:'#4ac0b0',ropa2:'#2a8f84',pelo:'#3a2a20',sonrie:1}},
+ {id:'sole',nom:'SOLE',cx:18,cy:6,dir:'abajo',baila:true,
+  cfg:{ropa:'#f0a83a',ropa2:'#c07a1a',pelo:'#502a3a',sonrie:1,vaso:1}},
+ {id:'vecina',nom:'LA VECINA',cx:19,cy:10,dir:'izq',baila:false,
+  cfg:{ropa:'#8a90a8',ropa2:'#5f6a84',pelo:'#c8c4c0'}},
+ {id:'pata',nom:'EL PATA',cx:6,cy:10,dir:'izq',baila:false,reta:'pata',
+  cfg:{ropa:'#6a4ad0',ropa2:'#452f9c',pelo:'#1e1a24',gorro:'#22e6ff'}},
+ {id:'profeta',nom:'LA PROFETA',cx:20,cy:13,dir:'izq',baila:false,reta:'profeta',
+  cfg:{ropa:'#2a2a3a',ropa2:'#16161f',pelo:'#e8e0d0',detalle:'#ffd24a'}},
+];
+
+const CHARLA_JATO={ zambrano:{ normal:['¡CAUSA, LLEGASTE!','PASA NOMÁS, LA COSA RECIÉN SE ESTÁ PRENDIENDO.','ANDA DONDE EL CHINO, EN LA COCINA. ESTÁ SIRVIENDO ALGO.'], psico :['CAUSA… TU CARA ES UN MAPA.','TODO BIEN, TODO BIEN. DISFRUTA LA NOCHE.']}, chino:{ normal:['TE ABRO UNA CHELA, CAUSA.','ES LA ESPECIAL DE LA CASA.','NO PREGUNTES QUÉ MÁS LE ECHÉ.','(RECIBES UNA CHELA)'], yatiene:['SALUD, CAUSA. CON CALMA NOMÁS.'], psico :['TE DIJE QUE NO PREGUNTES.','…','LA CHELA ERA NORMAL.','LO OTRO NO.']}, meche:{ normal:['¡ESTE TEMA ES UN TEMAZO!','PERO NO PUEDES BAILAR CON LAS MANOS VACÍAS, PE.'], psico :['¡AHORA SÍ!','¡LOS COLORES ESTÁN BAILANDO CONTIGO!']}, chola:{ normal:['ESTOY PONIENDO PURO FUNK MARCIANO ESTA NOCHE.','SIN TRAGO NO HAY PISTA, CAUSA.'], psico :['LE SUBÍ LOS GRAVES A LA REALIDAD.','NO ME AGRADEZCAS.']}, rosa:{ normal:['HOLA.','…','(SE QUEDA MIRÁNDOTE DOS SEGUNDOS DE MÁS)'], psico :['TUS OJOS TIENEN EL MISMO COLOR QUE ESTE BAJO.','YO TAMBIÉN ESTOY VIAJANDO.','QUÉDATE CERCA, ¿YA?'], hecho :['NO TE ME PIERDAS.']}, mila:{ normal:['AQUÍ AFUERA SE ESTÁ TRANQUILO.','ADENTRO ESTÁ FUERTE LA COSA.'], psico :['YO TOMÉ DE LA MISMA CHELA.','ESTAMOS EN LA MISMA FRECUENCIA.','ENTREMOS, HACE FRÍO.','…Y NO ENTREMOS SOLAS.'], hecho :['TE SIGO, TE SIGO.']}, kike:{ normal:['ZZZ… LA COMBI… ZZZ'], psico :['ZZZ… AHORA SUEÑO EN COLORES… ZZZ']}, flaca:{ normal:['LLEVO VEINTE MINUTOS EN ESTA COLA.','CREO QUE ADENTRO NO HAY NADIE.'], psico :['EL BAÑO ESTÁ RESPIRANDO.','YO AHÍ NO ENTRO.']},
+ primo:{ normal:['¡ESTA ERA LA MÍA, CAUSA!','MI PRIMO PUSO ESTE TEMA POR MÍ.'], psico :['SIENTO QUE FLOTO.','NO ME DESPIERTEN.']},
+ sole:{ normal:['¡SUBE EL VOLUMEN!','SI NO VIBRA EL PISO, NO ES FIESTA.'], psico :['LOS PARLANTES TIENEN CARA.','Y LA CARA ESTÁ CANTANDO.']},
+ vecina:{ normal:['VINE A QUEJARME POR EL RUIDO.','…PERO ESTÁ BUENA LA MÚSICA.'], psico :['YA NO SÉ A QUÉ VINE.','QUE SIGA NOMÁS.']},
+ pata:{ normal:['ESE, CAUSA. TE VEO EL AURA APAGADA.','ASÍ NO HAY BATALLA.','ANDA DONDE EL CHINO PRIMERO.'],
+   psico:['YA SE TE VE EL BICHO ENCIMA.','¿TE ANIMAS A UNA ASTRAL?'],
+   hecho:['YA ME GANASTE, PE.','ANDA A LO TUYO.']},
+ profeta:{ normal:['TODAVÍA NO ES EL MOMENTO.','CUANDO SE TE ABRA EL OJO, HABLAMOS.'],
+   espera:['PRIMERO EL PATA.','SI NO LE AGUANTAS A ÉL,','CONMIGO NI SUEÑES.'],
+   psico:['¿OTRA VUELTA?','A VER SI AGUANTAS.'], hecho:['VUELA BONITO, CAUSA.']}, };
+
+const RETOS_JATO={
+  pata:{nom:'EL PATA',bicho:'paloma',fase:'psico',
+    reto:['ESE, CAUSA. YA SE TE PRENDIÓ EL OJO.','¡BATALLA ASTRAL, AHORITA!'],
+    gano:['YA PUES, ME GANASTE.','TU CUY TIENE MÁS VIAJE QUE YO.','ANDA DONDE LA PROFETA, ESA SÍ VUELA.'],
+    perdio:['JAJA. HASTA UN CUY CÓSMICO SE MAREA.','RESPIRA Y VUELVE.']},
+  profeta:{nom:'LA PROFETA',bicho:'condor',fase:'psico',requiere:'pata',
+    reto:['YO TAMBIÉN VEO LO QUE VES.','A VER SI TU ANIMAL AGUANTA EL MÍO.'],
+    gano:['ESE CUY YA NO ES DE ESTE PISO.','ANDA NOMÁS, TE ESTÁN ESPERANDO.'],
+    perdio:['TE FALTA VUELO TODAVÍA.','RESPIRA Y VUELVE.']},
+};
+
+/* ============================================================
+   LAS NOCHES
+   ============================================================ */
+
+/* ---------- NOCHE 1 · LA JATO ---------- */
+const NOCHE_JATO={
+  id:'jato', nom:'LA JATO', lugar:'una casa cualquiera', pista:'finmundo',
+  pitch:'Llegaste tarde a la fiesta y todavía no tienes nada en la mano. Consíguete un trago, conversa con la gente y deja que la noche haga lo suyo.',
+  ayudaMando:'Consíguete un trago y conversa con todos',
+  solidos:'#RWBSMPELCtmbx',              // la D se abre al final
+  abre:'D', tileFinal:'D',
+  inicio:{cx:1,cy:13,dir:'der'},
+  luces:[13,4], notas:[[12,2],[12,4],[22,2],[22,4]],
+  conectan:['rosa','mila'],
+  palNormal:PAL_NORMAL, palPsico:PAL_PSICO_JATO,
+  mapa:MAPA_JATO, npcs:NPCS_JATO, charla:CHARLA_JATO, retos:RETOS_JATO,
+  mirar:{
+    E:{nom:'ESTANTE',lineas:['DISCOS DE VINILO.','TODOS DE GENTE DE MARTE.\nEL DUEÑO NO SE MIDE.']},
+    V:e=>({nom:'VENTANA',lineas:[e.fase==='psico'?'LA CIUDAD ESTÁ LATIENDO.':'DESDE AQUÍ SE VE MEDIO LIMA.']}),
+    R:{nom:'REFRI',lineas:['DENTRO SOLO HAY HIELO\nY UN TÁPER MISTERIOSO.']},
+    P:e=>({nom:'PARLANTE',lineas:[e.fase==='psico'?'EL PARLANTE TE ESTÁ\nHABLANDO. LE ENTIENDES.':'EL BAJO TE PEGA EN EL PECHO.']}),
+    C:{nom:'CAMA',lineas:['UNA CAMA.','NO ES MOMENTO… TODAVÍA.']},
+    M:{nom:'MESA',lineas:['VASOS VACÍOS Y\nUN PLATO DE CANCHITA.']},
+    m:{nom:'MESA',lineas:['VASOS VACÍOS Y\nUN PLATO DE CANCHITA.']},
+  },
+  objetivo(e){
+    if(e.fase==='normal') return e.flags.vaso?'* TOMATE LA CHELA':'* CONSÍGUETE UNA CHELA';
+    if(!e.invitados){ const f=(e.conecta.rosa?1:0)+(e.conecta.mila?1:0); return '* HABLA CON LA GENTE '+f+'/2'; }
+    return '* LA PUERTA DEL PASILLO';
+  },
+  hablar(n,c,e){
+    if(e.fase!=='normal'||n.id!=='chino') return false;
+    if(!e.flags.vaso){
+      hablar(c.normal,n.nom,()=>{ e.flags.vaso=true; YO.cfg.vaso=1;
+        setTimeout(()=>hablar(['TE LA TOMAS DE UN SOLO.','SABE A CHELA CON…\n¿FLORES?','…'],'',()=>viaje()),260); });
+    } else hablar(c.yatiene,n.nom);
+    return true;
+  },
+  alJuntarse(e){
+    const rosa=NPCS.find(n=>n.id==='rosa'), mila=NPCS.find(n=>n.id==='mila');
+    rosa.cx=5; rosa.cy=14; rosa.dir='izq';
+    mila.cx=3; mila.cy=14; mila.dir='der';
+  },
+  textoEntrada:['LLEGASTE TARDE.','LA MÚSICA YA SE ESCUCHA\nDESDE LA ESCALERA.','(HABLA CON LA GENTE\nCON ESPACIO O A)'],
+  textoViaje:['…','ALGUIEN DICE: “ESO TENÍA\nUN TRIPI, CAUSA”.','LA MÚSICA SE PONE\nMÁS ANCHA.','HABLA CON LA GENTE.'],
+  textoJuntarse:['ROSA Y MILA SE MIRAN.','DESPUÉS TE MIRAN A TI.','ROSA: ¿VAMOS AL CUARTO?','MILA: LAS TRES.','(LA PUERTA DEL PASILLO\nSE ABRIÓ)'],
+  textoFinal:['ROSA TE TOMA DE LA MANO.','MILA CIERRA LA PUERTA\nCON EL PIE.','LA MÚSICA SIGUE SONANDO\nDEL OTRO LADO.'],
+  cierre:'…y el resto es entre ustedes tres. La chela era de la bodega de la esquina; lo otro que tenía, nadie sabe.',
+  enganche:'',
+};
+
+
+/* ============================================================
+   DATOS DE LA NOCHE 2 · NOCHE DE LIMA
+   El pasaje Sánchez Carrión de Barranco: el Puente de los
+   Suspiros, la Bajada de Baños con el mar al fondo, el
+   boulevard adoquinado y LA NOCHE — la casona de 1991 con su
+   bar, su sala de conciertos y su terraza. Adentro toca GDM.
+   ============================================================ */
+const MAPA_LIMA=[
+//   012345678901234567890123
+  "########################",   // 0  SEGUNDO PISO: mesas y terraza
+  "#j...m.....m..#oooooooo#",   // 1
+  "#.............#oooooooo#",   // 2
+  "#...m.....m...#omoyyomo#",   // 3  mesas y ficus en la terraza
+  "#..............oooooooo#",   // 4  vano a la terraza
+  "#....S...S....#oooooooo#",   // 5
+  "#.............#oooooooo#",   // 6
+  "#bbbbbbbbbbbbb#bbbbbbbb#",   // 7  balcón interno / baranda al mar
+  "########################",   // 8
+  "########################",   // 9
+  "########################",   // 10 PLANTA BAJA DE LA NOCHE
+  "#PqZZZZdZZZZZZZZZZZZqZP#",   // 11 escenario
+  "#PZZZZZZZZZZZZZZZZZZZZP#",   // 12
+  "#,,,,,,,,,,,,,,,,,,,,,,#",   // 13 primera fila
+  "#,,,,,,,,,,,,,,,,,,,,,,#",   // 14
+  "#......................#",   // 15
+  "#BBBBB.......t.........#",   // 16 barra / consola de sonido
+  "#......................#",   // 17
+  "#..m..#.......m........#",   // 18
+  "#.....#................#",   // 19
+  "#s..E.#................#",   // 20 escalera / merch
+  "#.....#................#",   // 21
+  "wLLxLLwwwwwwwwwwwwwwwwww",  // 22 salida a la calle
+  "^^^^^^^^^^^^^^^^^^^^^^^^",   // 23 azotea de la casona (el local y la calle
+  "^^^^^^^^^^^^^^^^^^^^^^^^",   // 24 van aparte: se cruza por la puerta)
+  "wwwLLXLLwwwwwwwwwwwwwwww",   // 25 FACHADA DE LA NOCHE · marquesina y puerta
+  "aaaaaaaaaaaaaaaaaaaaaaaa",   // 26 EL BOULEVARD
+  "waFaaaaaakaaaaaaaaFaaaUw",   // 27 farol · anticuchera · farol · mural
+  "waaaaaaaaaaaaaaaaaaaaaaw",   // 28
+  "wwwwwwwwaaaaaawwwwwwwwww",   // 29
+  "ccccccccaaaaaacccccccccc",   // 30 el barranco
+  "TTTTTTTT======TTTTTTTTTT",   // 31
+  "========================",   // 32 EL PUENTE DE LOS SUSPIROS
+  "TTTTTTTT======TTTTTTTTTT",   // 33
+  "ccccccccaaaaaacccccccccc",   // 34 la Bajada de Baños
+  "cccccccc.aaaa.cccccccccc",   // 35
+  "~~~~~~~~~aaaa~~~~~~~~~~~",   // 36 el mar
+];
+
+const PAL_LIMA={
+  linea:'#161120', sombra:'#463c5c', medio:'#7a6b92', claro:'#b6a7c4', papel:'#f0e6d8',
+  madera:'#a87a4a', maderaOsc:'#6d4a2a', pared:'#3a3048', paredOsc:'#241e30', paredLuz:'#4e4260',
+  tela:'#8a3a5a', telaOsc:'#5a2038', verde:'#4a8f52', verdeOsc:'#2c5c36',
+  agua:'#4a7ac0', metal:'#8a90a0', metalOsc:'#4e5460', oro:'#e8b33a', neon:'#ff6ad5',
+  piel:'#e8b088', pielOsc:'#b07a56', pelo:'#2e2230',
+  // la calle de Barranco
+  piedra:'#5e5668', piedraClara:'#6e6678', piedraLuz:'#867e94', piedraOsc:'#3e3648', charco:'#7a9ac0',
+  casaA:'#8a4a5a', casaB:'#46648a', casaC:'#8a7a44', ventanaLuz:'#ffd88a',
+  mural1:'#2a3a6a', mural2:'#e05a8a', mural3:'#ffd24a',
+  faroLuz:'#ffd88a', brasa:'#ff7a2a',
+  puente:'#8a6a42', puenteOsc:'#57402a', puenteLuz:'#b08a58', abismo:'#120e1a',
+  tierra:'#5a4436', tierraOsc:'#3a2c22',
+  mar:'#1a2a4a', marOsc:'#0e1a30', marLuz:'#3a5a8a', espuma:'#7a9ac8',
+  letrero:'#c02a4a', letreroLuz:'#ff6a8a',
+  tarima:'#4a3a2e', tarimaOsc:'#2e241c', tarimaLuz:'#6a5442'
+};
+const PAL_LIMA_PSICO={
+  linea:'#1a0a2a', sombra:'#5a1a6a', medio:'#c93fa0', claro:'#8affd0', papel:'#fff3a0',
+  madera:'#c04ad0', maderaOsc:'#6a1a9a', pared:'#2a6ad0', paredOsc:'#1a3a9a', paredLuz:'#3f86e0',
+  tela:'#ff5a3a', telaOsc:'#c01a6a', verde:'#8aff2a', verdeOsc:'#2ac04a',
+  agua:'#00e0ff', metal:'#ff9ae0', metalOsc:'#8a3ac0', oro:'#ffe83a', neon:'#ff2ad0',
+  piel:'#ffc8a0', pielOsc:'#c07a9a', pelo:'#3a1a5a',
+  piedra:'#6a3ac0', piedraClara:'#8a5ae0', piedraLuz:'#c08aff', piedraOsc:'#3a1a7a', charco:'#00e0ff',
+  casaA:'#ff3a8a', casaB:'#00c0ff', casaC:'#ffe83a', ventanaLuz:'#ffffc0',
+  mural1:'#00e0c0', mural2:'#ff2ad0', mural3:'#ffe83a',
+  faroLuz:'#ffffc0', brasa:'#ff2a4a',
+  puente:'#ff8a3a', puenteOsc:'#c02a6a', puenteLuz:'#ffe83a', abismo:'#12002a',
+  tierra:'#a03ac0', tierraOsc:'#5a1080',
+  mar:'#1a00a0', marOsc:'#10005a', marLuz:'#00e0ff', espuma:'#8affd0',
+  letrero:'#ff2ad0', letreroLuz:'#ffe83a',
+  tarima:'#8a2ac0', tarimaOsc:'#4a1080', tarimaLuz:'#ff6ad5'
+};
+
+const NPCS_LIMA=[
+ // ---- la calle, el puente, la cola ----
+ {id:'poeta',nom:'EL POETA',cx:4,cy:32,dir:'der',baila:false,
+  cfg:{ropa:'#3a3450',ropa2:'#241e38',pelo:'#c8c0b8',detalle:'#8a3a5a'}},
+ {id:'turista',nom:'LA TURISTA',cx:18,cy:32,dir:'izq',baila:false,
+  cfg:{ropa:'#e0d0a0',ropa2:'#b0a070',pelo:'#8a6a3a',melena:1,sonrie:1}},
+ {id:'casera',nom:'LA CASERA',cx:9,cy:26,dir:'abajo',baila:false,
+  cfg:{ropa:'#c94a3f',ropa2:'#8f2f28',pelo:'#1a1418',melena:1,detalle:'#f0e6d0'}},
+ {id:'puerta',nom:'EL DE LA PUERTA',cx:5,cy:26,dir:'abajo',baila:false,
+  cfg:{ropa:'#1e1e26',ropa2:'#121216',pelo:'#141018',detalle:'#e8b33a'}},
+ {id:'cola',nom:'LA DE LA COLA',cx:7,cy:26,dir:'izq',baila:false,
+  cfg:{ropa:'#6a4ad0',ropa2:'#452f9c',pelo:'#3a1e28',melena:1}},
+ {id:'taxista',nom:'EL TAXISTA',cx:20,cy:27,dir:'izq',baila:false,
+  cfg:{ropa:'#e0c04a',ropa2:'#b09a2a',pelo:'#241a14',gorro:'#3a3450'}},
+ {id:'gato',nom:'EL GATO',cx:16,cy:28,dir:'abajo',baila:false,
+  cfg:{ropa:'#4a4453',ropa2:'#2e2a36',pelo:'#4a4453'}},
+ // ---- adentro de La Noche ----
+ {id:'barwoman',nom:'LA DEL BAR',cx:3,cy:15,dir:'abajo',baila:false,
+  cfg:{ropa:'#2a2a3a',ropa2:'#16161f',pelo:'#e8e0d0',melena:1,detalle:'#ff6ad5'}},
+ {id:'merch',nom:'LUZ',cx:5,cy:19,dir:'abajo',baila:false,
+  cfg:{ropa:'#e04a7a',ropa2:'#a82f58',pelo:'#3a1e28',melena:1,sonrie:1}},
+ {id:'sonidista',nom:'EL SONIDISTA',cx:14,cy:16,dir:'izq',baila:false,reta:'sonidista',
+  cfg:{ropa:'#3f7a4a',ropa2:'#2a5a34',pelo:'#241a14',audio:'#8a90a0'}},
+ {id:'pogo',nom:'EL DEL POGO',cx:11,cy:14,dir:'arriba',baila:true,reta:'pogo',
+  cfg:{ropa:'#22e6ff',ropa2:'#1a8fa8',pelo:'#1e1a24',sonrie:1}},
+ {id:'fan',nom:'LA FAN',cx:6,cy:13,dir:'arriba',baila:true,reta:'fan',
+  cfg:{ropa:'#ff6ad5',ropa2:'#c93fa0',pelo:'#6a2a52',melena:1,sonrie:1}},
+ // ---- Gente de Marte, arriba del escenario ----
+ {id:'vocal',nom:'GDM · VOZ',cx:11,cy:12,dir:'abajo',baila:true,
+  cfg:{ropa:'#5ec94f',ropa2:'#3f9a3a',pelo:'#141018',detalle:'#ffd24a',sonrie:1}},
+ {id:'bajo',nom:'GDM · BAJO',cx:7,cy:12,dir:'abajo',baila:true,
+  cfg:{ropa:'#a24bff',ropa2:'#6a2ac0',pelo:'#241820'}},
+ {id:'bateria',nom:'GDM · BATERÍA',cx:15,cy:12,dir:'abajo',baila:true,
+  cfg:{ropa:'#22e6ff',ropa2:'#1a8fa8',pelo:'#3a2a20'}},
+ // ---- segundo piso ----
+ {id:'duena',nom:'LA DUEÑA',cx:8,cy:3,dir:'abajo',baila:false,reta:'duena',
+  cfg:{ropa:'#8a7a5a',ropa2:'#6a5a42',pelo:'#c8c4c0',melena:1}},
+ {id:'sara',nom:'SARA',cx:19,cy:5,dir:'abajo',baila:false,
+  cfg:{ropa:'#4ac0b0',ropa2:'#2a8f84',pelo:'#241a14',melena:1,humo:1,sonrie:1}},
+];
+
+const CHARLA_LIMA={
+ poeta:{ normal:['ESTE PUENTE TIENE UNA REGLA:','LO CRUZAS AGUANTANDO LA RESPIRACIÓN\nY PIDES UN DESEO.','YO LLEVO TREINTA AÑOS\nSIN RESPIRAR, CAUSA.'],
+   psico:['AHORA SÍ ME VES BIEN.','ADENTRO TE VAN A MEDIR,\nNO AQUÍ AFUERA.','ANDA, QUE YA EMPEZÓ.']},
+ turista:{ normal:['¿ESTE ES EL PUENTE\nDE LOS SUSPIROS?','LLEVO CUARENTA MINUTOS\nBUSCÁNDOLO.','ESTOY PARADA ENCIMA, ¿NO?'],
+   psico:['AHORA LO ENTIENDO TODO.','MENOS DÓNDE DEJÉ MI CELULAR.']},
+ casera:{ normal:['ANTICUCHO, CAUSA. TRES SOLES.','¿VAS A LA NOCHE?','LLÉVALE UNO AL DE LA PUERTA,\nQUE LLEVA SEIS HORAS PARADO.'],
+   yatiene:['YA TIENES EL TUYO, PE.','ANDA NOMÁS.'],
+   psico:['LA BRASA ME ESTÁ HABLANDO.','DICE QUE ENTRES DE UNA VEZ.']},
+ puerta:{ normal:['NO HAY LISTA, NO HAY ENTRADA.','Y NO, NO CONOZCO A TU PRIMO.'],
+   anticucho:['…','¿ESO ES ANTICUCHO?','PASA, CAUSA. PASA RÁPIDO\nANTES QUE ME ARREPIENTA.'],
+   dentro:['ADENTRO ESTÁ FUERTE.','NO ME HAGAS QUEDAR MAL.'],
+   psico:['YO NO VI NADA.','YO NUNCA VEO NADA.']},
+ cola:{ normal:['LLEVO AQUÍ DESDE LAS OCHO.','DICEN QUE HOY TOCAN\nLOS MARCIANOS ESOS.'],
+   psico:['LA COLA ES UNA SERPIENTE.','Y YO SOY LA COLA DE LA COLA.']},
+ taxista:{ normal:['¿SALIDA? TE HAGO PRECIO.','DE AQUÍ A TU CASA,\nCUARENTA. Y NO REGATEES.'],
+   psico:['NO TE LLEVO ASÍ, CAUSA.','TE VEO EL AURA MOJADA.']},
+ gato:{ normal:['MIAU.'], psico:['(EL GATO TE MIRA)','(TE MIRA DEMASIADO)','MIAU.']},
+ barwoman:{ normal:['CHELA, CHELA O CHELA.','ESA ES LA CARTA DE HOY.','…TE PONGO DE LA QUE TOMA\nLA BANDA. VA POR MI CUENTA.','(RECIBES UNA CHELA)'],
+   yatiene:['SALUD.','ESA SE TOMA DE UN SOLO.'],
+   psico:['YA VI QUE TE CAYÓ.','NO FUE LA CHELA, CAUSA.','FUE LO QUE VENÍA ADENTRO.']},
+ merch:{ normal:['POLOS, PARCHES Y CASETES\nDE GENTE DE MARTE.','SÍ, CASETES. NO PREGUNTES.'],
+   espera:['ESPÉRAME UN TOQUE.','ESTA CANCIÓN ES MÍA.'],
+   psico:['TE ESTUVE VIENDO DESDE\nQUE ENTRASTE.','TENGO UN CASETE QUE NADIE\nHA ESCUCHADO TODAVÍA.','ARRIBA ESTÁ SARA.','¿SUBIMOS LAS TRES?'],
+   hecho:['TE ESPERO ARRIBA.']},
+ sonidista:{ normal:['NO TOQUES LA CONSOLA.','EN SERIO. NO LA TOQUES.'],
+   espera:['PRIMERO GÁNALE A TODO EL LOCAL.','CUANDO NO TE QUEDE NADIE,\nVUELVE.'],
+   psico:['YO MEZCLO ESTA NOCHE ENTERA.','TU VIAJE TAMBIÉN PASA\nPOR MI CONSOLA.','SUBAMOS EL VOLUMEN.'],
+   hecho:['TE SUBO UN DB.','TE LO GANASTE.']},
+ pogo:{ normal:['¡YA VA A EMPEZAR!','CUANDO ENTRE EL BAJO\nNO TE QUEDES PARADO, CAUSA.'],
+   psico:['¡ESTA ES LA MÍA!','¡SÁCAME EL BICHO,\nQUE EL MÍO YA SALIÓ!'],
+   hecho:['¡BUENA, HERMANO!','¡ESA VUELTA FUE LIMPIA!']},
+ fan:{ normal:['ES LA TERCERA VEZ QUE\nLOS VEO ESTE MES.','SÍ, TENGO PROBLEMAS.'],
+   psico:['SE TE PRENDIÓ EL OJO, ¿NO?','A MÍ TAMBIÉN.','HAY UN GATO QUE SE METIÓ\nDEL PARQUE Y NO SE QUIERE IR.','¡ES MÍO, Y PELEA!'],
+   hecho:['MI GATO TE RESPETA.','ESO NO SE LO HACE A CUALQUIERA.']},
+ vocal:{ normal:['GRACIAS POR VENIR, BARRANCO.','ESTA ES PARA LOS QUE\nNO DURMIERON ANOCHE.'],
+   psico:['¿TÚ TAMBIÉN LO ESTÁS VIENDO?','ENTONCES ESTA VA PARA TI.']},
+ bajo:{ normal:['(EL BAJO NO TE MIRA)','(EL BAJO NUNCA MIRA)'],
+   psico:['(EL BAJO TE MIRA UNA VEZ)','(CON ESO BASTA)']},
+ bateria:{ normal:['UNO, DOS…','UNO DOS TRES CUATRO.'],
+   psico:['ESTOY TOCANDO EN OTRO AÑO.','LLEGO EN UN RATO.']},
+ duena:{ normal:['ESTA CASONA ABRIÓ EN EL 91.','HUBO NOCHES SIN LUZ\nQUE TOCAMOS CON VELAS.','Y NADIE SE FUE.'],
+   espera:['PRIMERO GÁNALE A LOS DE ABAJO.','YO SOY LA ÚLTIMA PUERTA\nANTES DEL SONIDISTA.'],
+   psico:['LAS PAREDES SE ACUERDAN\nDE TODOS.','Y MI PERRO TAMBIÉN.','TIENE LA EDAD DE LA CASA\nY NO TIENE UN PELO.'],
+   hecho:['ENTRASTE A LA LISTA, CAUSA.','LA DE VERDAD.']},
+ sara:{ normal:['DESDE AQUÍ SE VE EL MAR.','NO SE VE NADA, EN REALIDAD.','PERO SE OYE.'],
+   espera:['TODAVÍA NO.','LA NOCHE NO TERMINA\nHASTA QUE TERMINA.'],
+   psico:['TE ESTABA ESPERANDO ARRIBA.','ABAJO HAY MUCHA GENTE\nY MUY POCO CIELO.','QUÉDATE UN RATO.','…Y TRÁETE A LUZ.'],
+   hecho:['NO TE VAYAS TODAVÍA.']},
+};
+
+const RETOS_LIMA={
+  fan:{nom:'LA FAN',bicho:'gatop',fase:'psico',
+    reto:['SE TE PRENDIÓ EL OJO, CAUSA.','ESTE GATO SE METIÓ DEL PARQUE\nY SE CREE DUEÑO DEL LOCAL.','¡BATALLA ASTRAL!'],
+    gano:['YA PUES, TE LO GANASTE.','ANDA AL POGO, AHÍ HAY UNO\nQUE NO SE CANSA NUNCA.'],
+    perdio:['MI GATO DUERME EN LA BARRA.','TÚ NI ESO.','RESPIRA Y VUELVE.']},
+  pogo:{nom:'EL DEL POGO',bicho:'zorro',fase:'psico',requiere:['fan'],
+    reto:['¡ESTA ES LA MÍA!','¡SÁCALO, QUE EL MÍO YA\nESTÁ EN LA PISTA!'],
+    gano:['¡BUENA, HERMANO!','SUBE DONDE LA SEÑORA.','ESA VIO TOCAR A TODOS.'],
+    perdio:['¡OTRA, OTRA!','CUANDO QUIERAS.']},
+  duena:{nom:'LA DUEÑA',bicho:'viringo',fase:'psico',requiere:['fan','pogo'],
+    reto:['ESTE PERRO TIENE LA EDAD\nDE LA CASA.','NO TIENE UN PELO NI UNA\nSOLA DUDA.','A VER SI LE AGUANTAS.'],
+    gano:['ENTRASTE A LA LISTA, CAUSA.','LA DE VERDAD.','BAJA DONDE EL SONIDISTA:\nESE NO PIERDE NUNCA.'],
+    perdio:['MI PERRO HA VISTO COSAS\nQUE TÚ NI SUEÑAS.','RESPIRA Y VUELVE.']},
+  sonidista:{nom:'EL SONIDISTA',bicho:'lobomar',fase:'psico',requiere:['fan','pogo','duena'],
+    reto:['YO MEZCLO ESTA NOCHE ENTERA.','LO QUE SALE DE ESTOS PARLANTES\nTIENE DUEÑO.','A VER SI LE AGUANTAS\nAL DE LA COSTA VERDE.'],
+    gano:['NUNCA VI QUE ALGUIEN\nLE GANARA A ESE ANIMAL.','ANDA NOMÁS.','LUZ TE ESTÁ BUSCANDO,\nY LA DE LA TERRAZA TAMBIÉN.'],
+    perdio:['EL MAR NO SE APURA, CAUSA.','VUELVE CUANDO QUIERAS.']},
+};
+
+/* ---------- NOCHE 2 · NOCHE DE LIMA ---------- */
+const NOCHE_LIMA={
+  id:'lima', nom:'NOCHE DE LIMA', lugar:'Barranco · La Noche', pista:'limayafue',
+  pitch:'Gente de Marte toca esta noche en La Noche de Barranco y tú no estás en la lista. Cruza el puente, entra como sea y pídete una chela en la barra.',
+  ayudaMando:'Entra al concierto y consíguete una chela',
+  solidos:'#PZdqBtEmSbwUFGykLT~c^',
+  inicio:{cx:10,cy:35,dir:'arriba'},
+  luces:[11,13], notas:[[2,12],[2,14],[21,12],[21,14]],
+  conectan:['merch','sara'],
+  escaleras:{ s:[2,1,'abajo'], j:[2,20,'abajo'],      // escalera al segundo piso
+              x:[5,26,'abajo'], X:[3,21,'arriba'] },   // salir / entrar a La Noche
+  cerrado:(t,e)=> t==='X' ? !e.flags.entro : undefined, // sin anticucho no entras
+  palNormal:PAL_LIMA, palPsico:PAL_LIMA_PSICO,
+  mapa:MAPA_LIMA, npcs:NPCS_LIMA, charla:CHARLA_LIMA, retos:RETOS_LIMA,
+  mirar:{
+    '=':e=>({nom:'EL PUENTE',lineas:[e.fase==='psico'?'LA MADERA RESPIRA\nDEBAJO DE TUS ZAPATILLAS.':'TABLONES VIEJOS.\nABAJO, LA BAJADA DE BAÑOS.']}),
+    '~':e=>({nom:'EL MAR',lineas:[e.fase==='psico'?'EL MAR ESTÁ AL REVÉS.\nY ASÍ SE VE MEJOR.':'NO SE VE NADA.\nPERO SE OYE.']}),
+    U:{nom:'MURAL',lineas:['UNA CARA ENORME PINTADA\nEN LA PARED.','TE SIGUE CON LA MIRADA.']},
+    F:{nom:'FAROL',lineas:['UN FAROL DE LOS VIEJOS.','LA GARÚA LE HACE UN HALO.']},
+    k:{nom:'CARRETILLA',lineas:['ANTICUCHOS, RACHI\nY CHOCLO.','EL HUMO SE VE DESDE\nEL PUENTE.']},
+    L:{nom:'EL LETRERO',lineas:['LA NOCHE.','DESDE 1991.']},
+    B:{nom:'LA BARRA',lineas:['MADERA GASTADA POR\nTREINTA AÑOS DE CODOS.']},
+    Z:{nom:'EL ESCENARIO',lineas:['AHÍ ARRIBA HAN TOCADO\nTODOS.','HOY LES TOCA A ELLOS.']},
+    d:{nom:'LA BATERÍA',lineas:['EL BOMBO TIENE PINTADO\nUN PLATILLO VOLADOR.']},
+    q:{nom:'EL AMPLI',lineas:['UNA LUCECITA ROJA\nY UN ZUMBIDO ETERNO.']},
+    t:{nom:'LA CONSOLA',lineas:['NO SE TOCA.','TE LO DIJO EL SONIDISTA.']},
+    E:{nom:'EL MERCH',lineas:['POLOS, PARCHES Y CASETES.','SÍ, CASETES.']},
+    P:e=>({nom:'PARLANTE',lineas:[e.fase==='psico'?'EL PARLANTE TE ESTÁ\nHABLANDO. LE ENTIENDES.':'UNA TORRE DE SONIDO\nMÁS ALTA QUE TÚ.']}),
+    b:{nom:'LA BARANDA',lineas:['DESDE AQUÍ SE VE\nTODA LA SALA.']},
+    S:{nom:'SILLÓN',lineas:['UN SILLÓN QUE HA VISTO\nDEMASIADO.']},
+    m:{nom:'MESA',lineas:['VASOS A MEDIO TERMINAR\nY UN CENICERO LLENO.']},
+    y:{nom:'MACETERO',lineas:['UN FICUS QUE AGUANTA\nMÁS QUE CUALQUIERA.']},
+    c:{nom:'EL BARRANCO',lineas:['TIERRA Y MALEZA.','POR AHÍ NO SE BAJA.']},
+    w:{nom:'CASONA',lineas:['UNA CASONA REPUBLICANA.','ALGUIEN TODAVÍA VIVE\nADENTRO.']},
+  },
+  objetivo(e){
+    if(e.fase==='normal'){
+      if(!e.flags.entro) return e.flags.anticucho?'* DÁSELO AL DE LA PUERTA':'* ENTRA A LA NOCHE';
+      return e.flags.vaso?'* TOMATE LA CHELA':'* CONSÍGUETE UNA CHELA';
+    }
+    const g=Object.keys(RETOS_LIMA).filter(k=>e.ganadas[k]).length;
+    if(g<4) return '* BATALLAS ASTRALES '+g+'/4';
+    if(!e.invitados){ const f=(e.conecta.merch?1:0)+(e.conecta.sara?1:0); return '* HABLA CON LA GENTE '+f+'/2'; }
+    return '* SUBE A LA TERRAZA';
+  },
+  hablar(n,c,e){
+    if(e.fase==='normal'){
+      if(n.id==='casera'){
+        if(!e.flags.anticucho){ hablar(c.normal,n.nom,()=>{ e.flags.anticucho=true; YO.cfg.vaso=1; }); }
+        else hablar(c.yatiene,n.nom);
+        return true;
+      }
+      if(n.id==='puerta'){
+        if(e.flags.entro){ hablar(c.dentro,n.nom); return true; }
+        if(!e.flags.anticucho){ hablar(c.normal,n.nom); return true; }
+        hablar(c.anticucho,n.nom,()=>{
+          e.flags.entro=true;
+          n.cx=3; n.cy=26; n.dir='der';                 // se hace a un lado
+        });
+        return true;
+      }
+      // adentro: la chela de la casa es la que prende el viaje
+      if(n.id==='barwoman'){
+        if(!e.flags.entro) return false;
+        if(!e.flags.vaso){
+          hablar(c.normal,n.nom,()=>{ e.flags.vaso=true; YO.cfg.vaso=1;
+            setTimeout(()=>hablar(['TE LA TOMAS DE UN SOLO.','SABE A CHELA CON…\n¿SAL DE MAR?','…','EL BAJO ENTRA Y LA SALA\nDA UN PASO ADELANTE.'],'',()=>viaje()),260); });
+        } else hablar(c.yatiene,n.nom);
+        return true;
+      }
+      return false;
+    }
+    // en el viaje, los dos que te esperan al final no hablan hasta que ganes las cuatro
+    if((n.id==='merch'||n.id==='sara') && !e.conecta[n.id] && this.faltaParaElFinal(e)){
+      hablar(c.espera,n.nom); return true;
+    }
+    return false;
+  },
+  faltaParaElFinal(e){ return Object.keys(RETOS_LIMA).some(k=>!e.ganadas[k]); },
+  alPisar(t,e){
+    // el final: la terraza, cuando ya te esperan arriba
+    if(e.puertaAbierta && !e.fin && YO.cy<=6 && YO.cx>=15){ finalDeLaNoche(); return true; }
+    return false;
+  },
+  alJuntarse(e){
+    const luz=NPCS.find(n=>n.id==='merch'), sara=NPCS.find(n=>n.id==='sara');
+    luz.cx=18; luz.cy=4; luz.dir='abajo';               // suben a la terraza
+    sara.cx=20; sara.cy=4; sara.dir='abajo';
+  },
+  textoEntrada:['LA COMBI TE DEJÓ ABAJO.','SE OYE UN BAJO QUE VIENE\nDESDE ARRIBA DEL PUENTE.','(SUBE POR LA BAJADA)'],
+  textoViaje:['…','ESA CHELA NO ERA SOLO CHELA.','LO DE ANOCHE TODAVÍA\nESTABA ADENTRO Y SE DESPERTÓ.','EL LOCAL ENTERO RESPIRA.','HABLA CON LA GENTE.'],
+  textoJuntarse:['LUZ Y SARA SE MIRAN\nDESDE LOS DOS PISOS.','DESPUÉS TE MIRAN A TI.','LUZ: TE ESPERAMOS ARRIBA.','SARA: LAS TRES.','(LA TERRAZA)'],
+  textoFinal:['ARRIBA NO HAY NADIE MÁS.','ABAJO SIGUE SONANDO GDM,\nPERO SE OYE LEJOS.','SARA SEÑALA EL MAR.','LUZ TE PASA LA CASACA.','NO SE VE NADA.','SE OYE.'],
+  cierre:'…y el último tema lo escucharon los tres desde la terraza, tapados con la misma casaca, hasta que salió el sol sobre la Costa Verde.',
+  enganche:'No dormiste nada y ya es de noche otra vez: Gente de Marte toca en La Noche de Barranco y tú no estás en la lista.',
+};
+
+const NIVELES=[NOCHE_JATO, NOCHE_LIMA];
+
+/* ---------- carga de la noche ---------- */
+let nivelElegido=0;
+function cargarNivel(i){
+  estado.nivel=i; NIV=NIVELES[i];
+  MAPA=NIV.mapa; MW=MAPA[0].length; MH=MAPA.length; SOLIDOS=NIV.solidos;
+  // el elenco se clona: así una segunda partida arranca con todos en su sitio
+  NPCS=NIV.npcs.map(n=>({...n,cfg:{...n.cfg},alerta:0}));
+  CHARLA=NIV.charla; RETOS=NIV.retos;
+  estado.retado={}; estado.ganadas={}; estado.conecta={}; estado.flags={};
+  for(const k of Object.keys(RETOS)){ estado.retado[k]=false; estado.ganadas[k]=false; }
+  for(const id of (NIV.conectan||[])) estado.conecta[id]=false;
+  PAL={...NIV.palNormal};
+  window.GDM_PISTA=NIV.pista;                 // cada noche tiene su tema de GDM
+  if(window.GDMMusic) GDMMusic.play();
+  YO.cx=NIV.inicio.cx; YO.cy=NIV.inicio.cy; YO.dir=NIV.inicio.dir;
+  YO.ox=0; YO.oy=0; YO.mov=false; YO.cfg.vaso=0;
+  pintaMapa();
+}
+
+/* ---------- selector de noche ---------- */
+function pintaChips(){
+  const cont=document.getElementById('chips'); if(!cont) return;
+  const abiertas=nochesAbiertas();
+  cont.innerHTML='';
+  NIVELES.forEach((N,i)=>{
+    const b=document.createElement('button');
+    const libre=i<abiertas;
+    b.className='chip'+(i===nivelElegido?' on':'')+(libre?'':' lock');
+    b.innerHTML='NOCHE '+(i+1)+' · '+N.nom+'<small>'+(libre?N.lugar:'se abre al terminar la anterior')+'</small>';
+    if(libre) b.onclick=()=>{ nivelElegido=i; pintaChips(); pintaIntro(); };
+    cont.appendChild(b);
+  });
+}
+function pintaIntro(){
+  const t=document.getElementById('introTxt');
+  if(t) t.textContent=NIVELES[nivelElegido].pitch;
+}
+
+/* ---------- arranque ---------- */
+function empezar(){
+  Object.assign(estado,{fase:'normal',tomo:false,puertaAbierta:false,
+    invitados:false,fin:false,t:0,psicoT:0});
+  bat.activa=false; bat.fase=''; bat.barrido=0;
+  fundido=0;
+  cargarNivel(nivelElegido);
+  document.getElementById('scrIntro').classList.add('hide');
+  document.getElementById('scrFin').classList.add('hide');
+  document.getElementById('scrPaso').classList.add('hide');
+  corriendo=true;
+  if(window.GDMMusic) GDMMusic.play();
+  if(window.GDMPad&&GDMPad.controls) GDMPad.controls('NOCHES ÁCIDAS', {
+    mando:[['Stick / Cruceta','Caminar'],['✕ / △ / R1 / R2','Hablar y pasar el texto'],
+           ['OPTIONS','Pausa'],['—',NIV.ayudaMando]],
+    teclado:[['WASD / flechas','Caminar'],['ESPACIO','Hablar y pasar el texto'],
+             ['P','Pausa'],['—',NIV.ayudaMando]]});
+  if(NIV.alEmpezar) NIV.alEmpezar(estado);
+  setTimeout(()=>hablar(NIV.textoEntrada,''),400);
+}
+document.getElementById('btnStart').onclick=empezar;
+document.getElementById('btnOtra').onclick=()=>{ document.getElementById('scrFin').classList.add('hide');
+  document.getElementById('scrIntro').classList.remove('hide'); pintaChips(); pintaIntro(); };
+document.getElementById('btnSigue').onclick=()=>{
+  if(NIVELES[estado.nivel+1]) nivelElegido=estado.nivel+1;
+  document.getElementById('scrPaso').classList.add('hide');
+  empezar();
+};
+nivelElegido=nochesAbiertas()-1;                 // arranca en la última noche abierta
+pintaChips(); pintaIntro();
+cargarNivel(nivelElegido);                       // para que se vea algo detrás de la intro
+
+
+/* ============================================================
+   BATALLA ASTRAL · dos tipos te retan y pelean los animales
+   espirituales, por turnos, con la liturgia de siempre
+   ============================================================ */
+const VIBRAS={tierra:'TIERRA',humo:'HUMO',chispa:'CHISPA'};
+// triángulo: tierra apaga la chispa, la chispa corta el humo, el humo ahoga la tierra
+function efectividad(a,b){
+  if(a==='tierra'&&b==='chispa') return 2;
+  if(a==='chispa'&&b==='humo')   return 2;
+  if(a==='humo'&&b==='tierra')   return 2;
+  if(a===b) return 1;
+  return 0.5;
+}
+
+/* ---------- animales espirituales ---------- */
+const BICHOS={
+  cuycos:{nom:'CUY CÓSMICO',hp:52,vibra:'chispa',dib:dibCuy,cosmico:true,
+    ataques:[{n:'RAYO FUNK',p:15,v:'chispa'},{n:'AURA MARTE',p:12,v:'humo'},
+             {n:'PANZAZO PSI',p:17,v:'tierra'},{n:'TERCER OJO',p:8,v:'humo',cura:10}]},
+  paloma:{nom:'PALOMA',hp:46,vibra:'humo',dib:dibPaloma,
+    ataques:[{n:'ALETAZO',p:10,v:'humo'},{n:'PICOTAZO',p:12,v:'tierra'},
+             {n:'MIGAJA',p:7,v:'humo'},{n:'RASANTE',p:13,v:'chispa'}]},
+  condor:{nom:'CÓNDOR NEÓN',hp:52,vibra:'chispa',dib:dibCondor,
+    ataques:[{n:'GRITO ANDINO',p:13,v:'chispa'},{n:'ALA DE NEÓN',p:15,v:'chispa'},
+             {n:'GARRA',p:11,v:'tierra'},{n:'PLANEO',p:9,v:'humo'}]},
+  /* --- los de la noche de Barranco --- */
+  gatop:{nom:'GATO DE PARQUE',hp:44,vibra:'humo',dib:dibGato,
+    ataques:[{n:'ZARPAZO',p:12,v:'tierra'},{n:'MAULLIDO',p:10,v:'humo'},
+             {n:'LOMO ERIZADO',p:8,v:'humo'},{n:'SALTO DE BANCA',p:13,v:'chispa'}]},
+  viringo:{nom:'PERRO VIRINGO',hp:50,vibra:'tierra',dib:dibViringo,
+    ataques:[{n:'CALOR ANCESTRAL',p:11,v:'tierra'},{n:'MORDIDA',p:10,v:'tierra'},
+             {n:'AULLIDO',p:10,v:'humo'},{n:'CARRERA',p:11,v:'chispa'}]},
+  zorro:{nom:'ZORRO COSTEÑO',hp:58,vibra:'chispa',dib:dibZorro,
+    ataques:[{n:'COLAZO',p:14,v:'chispa'},{n:'FINTA',p:10,v:'humo'},
+             {n:'DENTELLADA',p:11,v:'tierra'},{n:'CHISPAZO',p:13,v:'chispa'}]},
+  lobomar:{nom:'LOBO DE MAR',hp:66,vibra:'tierra',dib:dibLobo,
+    ataques:[{n:'RUGIDO DE ROCA',p:12,v:'tierra'},{n:'OLA',p:13,v:'humo'},
+             {n:'ALETAZO',p:11,v:'tierra'},{n:'RESPIRO HONDO',p:7,v:'humo',cura:7}]},
+};
+
+/* ---------- retadores ---------- */
+const bat={activa:false,fase:'',cursor:0,mio:null,suyo:null,quien:null,
+  sacudida:0,flash:0,barrido:0,ganada:false};
+
+function miBicho(){ return 'cuycos'; }   // en el viaje tu animal espiritual siempre es el cósmico
+function nuevoLuchador(id){ const B=BICHOS[id];
+  return {id,nom:B.nom,hp:B.hp,hpMax:B.hp,vibra:B.vibra,ataques:B.ataques,dib:B.dib,cosmico:B.cosmico}; }
+
+function retar(idReto){
+  const R=RETOS[idReto];
+  bat.activa=true; bat.quien=idReto; bat.fase='intro'; bat.cursor=0; bat.barrido=1; bat.ganada=false;
+  bat.mio=nuevoLuchador(miBicho()); bat.suyo=nuevoLuchador(R.bicho);
+  if(window.GDMPad&&GDMPad.rumble) GDMPad.rumble(0.5,0.4,220);
+  const pista=estado.ganadas.pata?[]:['(CADA VIBRA LE GANA A OTRA:','TIERRA > CHISPA > HUMO > TIERRA)'];
+  hablar([...R.reto,'¡'+R.nom+' SACÓ A '+bat.suyo.nom+'!','¡VE, '+bat.mio.nom+'!',...pista],R.nom,()=>{ bat.fase='menu'; });
+}
+
+function dañoDe(atacante,defensor,mov){
+  const ef=efectividad(mov.v,defensor.vibra);
+  const base=mov.p+Math.floor(Math.random()*4);
+  return {n:Math.max(1,Math.round(base*ef)),ef};
+}
+function turno(idx){
+  if(bat.fase!=='menu') return;
+  const mov=bat.mio.ataques[idx];
+  bat.fase='texto';
+  const {n,ef}=dañoDe(bat.mio,bat.suyo,mov);
+  const linea=['¡'+bat.mio.nom+' USÓ '+mov.n+'!'];
+  if(ef>1) linea.push('¡LE LLEGÓ AL ALMA!');
+  if(ef<1) linea.push('NO LE HIZO MUCHO…');
+  hablar(linea,'',()=>{
+    bat.suyo.hp=Math.max(0,bat.suyo.hp-n); bat.sacudida=0.35; bat.flash=0.2;
+    if(mov.cura){ bat.mio.hp=Math.min(bat.mio.hpMax,bat.mio.hp+mov.cura); }
+    setTimeout(()=>{
+      if(bat.suyo.hp<=0){ ganarBatalla(); return; }
+      turnoRival();
+    },520);
+  });
+}
+function turnoRival(){
+  const movs=bat.suyo.ataques;
+  let mov=movs[Math.floor(Math.random()*movs.length)];
+  if(Math.random()<0.55){                                   // a veces piensa
+    mov=movs.slice().sort((a,b)=>efectividad(b.v,bat.mio.vibra)*b.p-efectividad(a.v,bat.mio.vibra)*a.p)[0];
+  }
+  const {n,ef}=dañoDe(bat.suyo,bat.mio,mov);
+  const linea=['¡'+bat.suyo.nom+' USÓ '+mov.n+'!'];
+  if(ef>1) linea.push('¡TE DOBLÓ LA VIBRA!');
+  hablar(linea,'',()=>{
+    bat.mio.hp=Math.max(0,bat.mio.hp-n); bat.sacudida=0.35; bat.flash=0.2;
+    setTimeout(()=>{
+      if(bat.mio.hp<=0){ perderBatalla(); return; }
+      bat.fase='menu';
+    },520);
+  });
+}
+function ganarBatalla(){
+  const R=RETOS[bat.quien]; bat.ganada=true; bat.fase='texto';
+  estado.ganadas[bat.quien]=true;
+  guardaHitos();
+  hablar(['¡'+bat.suyo.nom+' SE APAGÓ!','GANASTE LA BATALLA ASTRAL.',...R.gano],R.nom,()=>{
+    bat.activa=false; bat.fase='';
+  });
+}
+function perderBatalla(){
+  const R=RETOS[bat.quien]; bat.fase='texto';
+  hablar(['TU '+bat.mio.nom+' SE MAREÓ.',...R.perdio,'(HÁBLALE PARA LA REVANCHA)'],R.nom,()=>{
+    bat.activa=false; bat.fase='';
+  });
+}
+
+/* ---------- entrada de la batalla ---------- */
+function inputBatalla(k){
+  if(dlg.activo){ avanzarDlg(); return true; }
+  if(bat.fase!=='menu') return true;
+  if(k==='izq'||k==='der') bat.cursor^=1;
+  else if(k==='arriba'||k==='abajo') bat.cursor^=2;
+  else if(k==='a') turno(bat.cursor);
+  return true;
+}
+
+/* ---------- dibujo de los bichos ---------- */
+/* ---------- los animales de la NOCHE DE LIMA ---------- */
+function dibGato(g,X,Y){                                  // gato del Parque Municipal
+  const R=(x,y,w,h,c)=>px(g,X+x,Y+y,w,h,c);
+  const pelo='#4a4453', osc='#2e2a36', claro='#6d6678', panza='#c8c0b0';
+  const cola=Math.sin(estado.t*3)*3|0;
+  R(4,26+cola,10,3,pelo); R(1,22+cola,5,6,pelo); R(1,22+cola,3,3,osc);   // cola en alto
+  R(11,18,17,14,pelo); R(13,24,12,8,panza);                              // cuerpo
+  R(14,20,11,3,osc); R(17,25,8,2,osc);                                   // atigrado
+  R(24,8,13,12,pelo); R(25,10,11,8,claro);                               // cabeza
+  R(23,4,4,6,pelo); R(24,5,2,3,'#e0a0b0');                               // oreja izq
+  R(33,4,4,6,pelo); R(34,5,2,3,'#e0a0b0');                               // oreja der
+  R(27,12,3,4,'#8aff5a'); R(34,12,3,4,'#8aff5a');                        // ojos de gato
+  R(28,13,1,3,'#101018'); R(35,13,1,3,'#101018');
+  R(31,17,3,2,'#e0a0b0'); R(30,19,5,1,osc);                              // hocico
+  R(22,15,7,1,claro); R(36,15,4,1,claro);                                // bigotes
+  R(12,31,5,5,pelo); R(20,31,5,5,pelo); R(12,35,5,2,osc); R(20,35,5,2,osc);
+}
+function dibViringo(g,X,Y){                               // perro sin pelo del Perú
+  const R=(x,y,w,h,c)=>px(g,X+x,Y+y,w,h,c);
+  const piel='#4a3038', osc='#2e1c22', luz='#6b4450', mancha='#c8a878';
+  const paso=Math.floor(estado.t*4)%2;
+  R(2,24,7,3,piel); R(1,20,4,6,piel);                     // cola larga y flaca
+  R(8,16,20,15,piel); R(10,22,15,8,luz);                  // torso (se le ven las costillas)
+  R(12,20,1,8,osc); R(15,20,1,8,osc); R(18,20,1,8,osc);
+  R(21,17,6,4,mancha);                                    // mancha rosada
+  R(24,6,13,13,piel); R(26,9,9,8,luz);                    // cabeza alargada
+  R(24,2,3,7,piel); R(33,2,3,7,piel);                     // orejas paradas
+  R(25,3,1,4,osc); R(34,3,1,4,osc);
+  R(28,11,3,3,'#ffd24a'); R(34,11,3,3,'#ffd24a');         // ojos ámbar
+  R(29,12,1,2,'#101018'); R(35,12,1,2,'#101018');
+  R(35,15,5,4,piel); R(37,16,3,2,osc); R(36,19,3,1,osc);  // hocico
+  R(9,30,5,7-paso,piel); R(17,30,5,6+paso,piel);
+  R(9,36,5,2,osc); R(17,36,5,2,osc);
+  R(30,20,4,2,'#ff6a6a');                                 // la lengua afuera (siempre tienen calor)
+}
+function dibZorro(g,X,Y){                                 // zorro costeño
+  const R=(x,y,w,h,c)=>px(g,X+x,Y+y,w,h,c);
+  const pelo='#c9762f', osc='#8a4a18', claro='#e8a960', blanco='#f0e4d0';
+  const cola=Math.sin(estado.t*2.4)*2|0;
+  R(0,20+cola,12,9,pelo); R(0,23+cola,9,4,claro); R(0,20+cola,4,3,blanco); // cola tupida
+  R(10,18,18,13,pelo); R(12,24,14,7,claro);
+  R(24,8,13,12,pelo); R(26,11,10,8,claro);
+  R(22,2,5,8,pelo); R(23,4,3,4,osc);                      // orejas grandes
+  R(32,2,5,8,pelo); R(33,4,3,4,osc);
+  R(27,12,3,3,'#ffe066'); R(33,12,3,3,'#ffe066');
+  R(28,13,1,2,'#101018'); R(34,13,1,2,'#101018');
+  R(30,16,7,4,blanco); R(36,17,3,2,'#241a20');            // hocico fino
+  R(24,19,12,2,blanco);
+  R(11,30,5,6,pelo); R(19,30,5,6,pelo);
+  R(11,35,5,2,'#241a20'); R(19,35,5,2,'#241a20');
+}
+function dibLobo(g,X,Y){                                  // lobo de mar de la Costa Verde
+  const R=(x,y,w,h,c)=>px(g,X+x,Y+y,w,h,c);
+  const cuero='#6b5a4a', osc='#43382e', luz='#8d7a66', panza='#b0a08a';
+  const resp=Math.abs(Math.sin(estado.t*1.6))*2|0;        // respira pesado
+  R(0,26,10,7,cuero); R(0,28,6,4,osc);                    // aleta trasera
+  R(6,16-resp,26,18+resp,cuero); R(10,24,18,10,panza);    // corpachón
+  R(8,30,9,6,osc); R(20,31,8,5,osc);                      // aletas delanteras
+  R(24,6,14,14,cuero); R(26,9,11,9,luz);                  // cabezota
+  R(27,11,4,4,'#1a1a24'); R(34,11,4,4,'#1a1a24');         // ojos negros mojados
+  R(28,12,2,2,'#8ad0ff'); R(35,12,2,2,'#8ad0ff');
+  R(33,16,7,5,luz); R(36,17,3,2,'#2a2028');               // hocico
+  R(30,19,10,1,osc);
+  R(31,21,2,4,'#f0e8d8'); R(35,21,2,4,'#f0e8d8');         // colmillos
+  for(let i=0;i<4;i++){ R(30+i*2,15,1,1,osc); R(30+i*2,18,1,1,osc); }  // bigotes
+  R(12,14-resp,10,3,'#3a3038');                           // lomo mojado
+}
+
+function dibCuy(g,X,Y,espalda,cos){
+  const R=(x,y,w,h,c)=>px(g,X+x,Y+y,w,h,c);
+  const cuerpo=cos?'#b45aff':'#a8743f', luz=cos?'#e0a0ff':'#c8a06a',
+        panza=cos?'#ffe0b0':'#efe0c4', osc=cos?'#6a2aa8':'#7a5230';
+  // grupa ancha abajo, lomo más angosto arriba (silueta de cuy)
+  R(5,20,30,14,cuerpo); R(7,16,26,6,cuerpo); R(3,24,34,8,cuerpo);
+  R(4,30,32,4,osc);
+  R(7,22,12,10,panza);                                   // mancha bicolor
+  R(9,10,22,12,cuerpo); R(11,8,18,4,cuerpo);             // cabeza
+  R(11,9,18,3,luz);
+  R(6,7,8,7,cuerpo); R(26,7,8,7,cuerpo);                 // orejas
+  R(8,9,4,4,osc); R(28,9,4,4,osc);
+  R(7,33,7,4,osc); R(26,33,7,4,osc);                     // patitas
+  if(espalda){
+    R(13,12,14,8,osc); R(15,13,3,5,cuerpo); R(22,13,3,5,cuerpo);   // remolino de la nuca
+    R(17,26,6,6,panza);
+  } else {
+    R(12,14,5,5,'#1a1218'); R(23,14,5,5,'#1a1218');      // ojazos
+    R(13,15,2,2,'#fff'); R(24,15,2,2,'#fff');
+    R(18,19,4,3,'#d88a8a');                              // hocico
+    R(18,22,2,3,'#fff'); R(20,22,2,3,'#fff');            // dientes
+    R(9,20,7,1,osc); R(24,20,7,1,osc);                   // bigotes
+  }
+  if(cos){
+    R(18,3,4,6,'#ffe83a'); R(16,0,8,3,'#ff2ad0');        // antena
+    if(!espalda){ R(17,10,6,3,'#00e0ff'); R(19,11,2,1,'#fff'); }
+    for(let i=0;i<6;i++){ const a=estado.t*2+i*1.05;
+      R(20+Math.cos(a)*23,22+Math.sin(a)*17,2,2,['#ff2ad0','#00e0ff','#8aff2a','#ffe83a','#ff9ae0','#fff'][i]); }
+  }
+}
+function dibPaloma(g,X,Y){
+  const R=(x,y,w,h,c)=>px(g,X+x,Y+y,w,h,c);
+  const gris='#8d94a8', claro='#aab1c2', osc='#616880';
+  const al=Math.floor(estado.t*4)%2;                     // aletea
+  R(13,17,16,15,gris); R(11,21,20,9,gris);               // cuerpo
+  R(13,19,9,10,claro);                                   // pecho hinchado
+  R(15,9,13,11,gris); R(16,9,11,3,claro);                // cabeza
+  R(26,14,6,3,'#e8a03a'); R(31,15,2,2,'#c07a20');        // pico
+  R(19,12,4,4,'#c22a2a'); R(20,13,2,2,'#1a1218'); R(20,13,1,1,'#fff');
+  R(16,17,7,2,'#5affe0'); R(17,19,5,2,'#3ac0d0');        // tornasol del cuello
+  R(5,18-al*2,12,9,osc); R(3,20-al*2,7,5,gris);          // ala
+  R(6,20-al*2,8,2,claro);
+  R(1,26,12,4,osc); R(0,28,9,3,gris); R(3,30,7,2,claro); // cola en abanico
+  R(16,31,3,5,'#e8a03a'); R(23,31,3,5,'#e8a03a');        // patitas
+  R(15,35,6,2,'#c07a20'); R(22,35,6,2,'#c07a20');
+}
+function dibCondor(g,X,Y){
+  const R=(x,y,w,h,c)=>px(g,X+x,Y+y,w,h,c);
+  const neg='#241a2e', ala='#3a2a44';
+  R(2,14,36,8,ala); R(0,12,10,6,ala); R(30,12,10,6,ala); // alas abiertas
+  R(4,20,8,5,neg); R(28,20,8,5,neg);
+  R(14,14,12,20,neg);                                    // cuerpo
+  R(13,12,14,5,'#f0ece0');                               // collar blanco
+  R(16,4,8,10,neg);                                      // cabeza
+  R(15,2,10,4,'#c05a2a');                                // cresta
+  R(23,7,5,3,'#e8a03a');                                 // pico
+  R(17,6,3,3,'#ffe83a'); R(18,7,1,1,'#fff');
+  R(16,34,4,4,'#e8a03a'); R(21,34,4,4,'#e8a03a');
+  for(let i=0;i<4;i++){ const a=estado.t*3+i*1.57;        // aura de neón
+    R(19+Math.cos(a)*20,20+Math.sin(a)*18,2,2,['#ff2ad0','#00e0ff','#8aff2a','#ffe83a'][i]); }
+}
+
+/* ---------- pantalla de batalla ---------- */
+function cajaBicho(g,x,y,w,l,mia){
+  const alto=mia?30:24;
+  px(g,x,y,w,alto,PAL.linea); px(g,x+1,y+1,w-2,alto-2,'#f8f4e8');
+  txt(g,l.nom.slice(0,11),x+4,y+3,'#241a20');
+  px(g,x+4,y+13,w-8,6,'#241a20'); px(g,x+5,y+14,w-10,4,'#5a5a5a');
+  const frac=Math.max(0,l.hp/l.hpMax), an=Math.round((w-10)*frac);
+  px(g,x+5,y+14,an,4, frac>0.5?'#3aff6a' : frac>0.22?'#ffd24a':'#ff4a4a');
+  if(mia) txt(g,l.hp+'/'+l.hpMax,x+w-42,y+20,'#241a20');
+}
+function dibujarBatalla(){
+  const g=BUF.g;
+  // fondo astral
+  g.fillStyle=estado.fase==='psico'?'#2a1046':'#1a1030'; g.fillRect(0,0,W,H);
+  for(let i=0;i<26;i++){
+    const x=(i*37+Math.sin(estado.t*0.4+i)*6)%W, y=(i*23+estado.t*4)%88;
+    px(g,x,y,1,1,i%3?'#6a5a90':'#c0a8e0');
+  }
+  for(let r=0;r<3;r++){
+    const rad=18+r*13+Math.sin(estado.t*1.2+r)*3;
+    for(let a=0;a<14;a++){ const an=a/14*6.283+estado.t*(r%2?0.5:-0.5);
+      px(g,80+Math.cos(an)*rad*1.5,44+Math.sin(an)*rad*0.6,1,1,['#5a3a80','#7a4aa0','#9a5ac0'][r]); }
+  }
+  const sx=bat.sacudida>0?(Math.random()*2-1)*2:0;
+  // plataformas
+  px(g,88,56,44,4,'#4a3a6a'); px(g,92,60,36,2,'#3a2a54');
+  px(g,14,96,48,4,'#4a3a6a'); px(g,18,100,40,2,'#3a2a54');
+  // bichos
+  bat.suyo.dib(g,96+sx,16,false,bat.suyo.cosmico);
+  bat.mio.dib(g,18,58,true,bat.mio.cosmico);
+  if(bat.flash>0 && Math.floor(estado.t*30)%2){ g.globalAlpha=0.5; px(g,0,0,W,H,'#ffffff'); g.globalAlpha=1; }
+  // marcadores
+  cajaBicho(g,6,8,76,bat.suyo,false);
+  cajaBicho(g,80,64,74,bat.mio,true);
+  // parte de abajo
+  if(dlg.activo) cajaDialogo(g);
+  else if(bat.fase==='menu'){
+    const y0=H-46;
+    px(g,0,y0,W,46,PAL.linea); px(g,2,y0+2,W-4,42,'#f8f4e8');
+    bat.mio.ataques.forEach((m,i)=>{
+      const x=8+(i%2)*76, y=y0+8+((i/2)|0)*18;
+      txt(g,m.n.slice(0,12),x+7,y,'#241a20');
+      if(bat.cursor===i){ px(g,x,y+1,4,4,'#241a20'); px(g,x+1,y+2,4,2,'#241a20'); }
+    });
+    txt(g,VIBRAS[bat.mio.ataques[bat.cursor].v],W-46,y0+34,'#8a7a90');
+  }
+  // a pantalla
+  CX.clearRect(0,0,W,H); CX.drawImage(BUF.c,0,0);
+  if(estado.fase==='psico') tinte(estado.t*0.6);
+  if(bat.barrido>0){                       // entrada: barrido de franjas
+    const p=bat.barrido;
+    for(let i=0;i<9;i++){ const h=16, y=i*h;
+      const an=Math.round(W*Math.min(1,p*1.4-(i%3)*0.12));
+      if(an>0) CX.fillStyle='#0d0a12', CX.fillRect(i%2?W-an:0,y,an,h); }
+  }
+}
+
+</script>
+</body>
+</html>
