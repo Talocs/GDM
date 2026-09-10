@@ -17,6 +17,23 @@
 
   /* ---------- HUD ---------- */
   #hud{position:fixed;top:14px;left:16px;z-index:5;pointer-events:none;text-shadow:0 2px 0 #000;}
+  /* ---------- en celular los rótulos van más chicos ----------
+     Los tamaños estaban en 'vw', que mide el ancho del teléfono (390 px).
+     Con el juego de lado, esa medida ya no corresponde a lo que se ve y los
+     carteles salían enormes, tapando media pantalla. Aquí se fijan a mano.
+     'html.gdmRot' = el juego se giró solo; el @media cubre el caso en que el
+     celular sí rotó por su cuenta (pantalla ancha y baja). */
+  html.gdmRot #banner, html.gdmRot #toast,
+  html.gdmRot #hud, html.gdmRot #zoneName { --chico: 1; }
+  html.gdmRot #banner{ font-size:26px; letter-spacing:1px; text-shadow:0 2px 0 #000,0 0 14px rgba(255,210,74,.5); }
+  html.gdmRot #toast{ font-size:13px; padding:7px 13px; border-width:2px; border-radius:10px;
+    max-width:52vh; line-height:1.25; text-shadow:0 2px 0 #000; }
+  html.gdmRot #hud{ top:8px; left:10px; transform:scale(.72); transform-origin:top left; }
+  @media (max-height:520px){
+    #banner{ font-size:26px !important; letter-spacing:1px; }
+    #toast{ font-size:13px !important; padding:7px 13px; border-width:2px; border-radius:10px; max-width:52vw; }
+    #hud{ top:8px; left:10px; transform:scale(.72); transform-origin:top left; }
+  }
   #hpWrap{width:230px;}
   #hpWrap .lbl{font-size:15px;letter-spacing:2px;color:#8affa0;font-weight:700;}
   #hpTrack{height:16px;background:#182338;border:2px solid #0c1626;border-radius:6px;
@@ -174,8 +191,8 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="gdm-music.js?v=1789062082"></script>
-<script src="gdm-gamepad.js?v=1789062082"></script>
+<script src="gdm-music.js?v=1789078828"></script>
+<script src="gdm-gamepad.js?v=1789078828"></script>
 <script>
 window.addEventListener('error',function(e){
   let d=document.getElementById('errbox');

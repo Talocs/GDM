@@ -152,8 +152,8 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="gdm-music.js?v=1789062082"></script>
-<script src="gdm-gamepad.js?v=1789062082"></script>
+<script src="gdm-music.js?v=1789078828"></script>
+<script src="gdm-gamepad.js?v=1789078828"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 // ---- mostrar errores en pantalla (diagnóstico móvil) ----
@@ -373,7 +373,19 @@ const under=new THREE.PointLight(0x49ffb0,1.5,16,2); scene.add(under);
 applyPerf();   // aplica la calidad inicial (pixelRatio + sombras)
 
 // ---------- Helpers ----------
-function mat(color,opts={}){ return new THREE.MeshLambertMaterial(Object.assign({color,flatShading:true},opts)); }
+// Cada pieza del escenario pedía su propio material aunque el color se repitiera:
+// 6.376 materiales para 6.700 objetos. Así la tarjeta dibuja uno por uno y el
+// juego da tirones. Ahora los del mismo color se comparten.
+const _MATS=new Map();
+function mat(color,opts={}){
+  const claves=Object.keys(opts);
+  if(claves.length===0){                       // el caso normal: solo color
+    let m=_MATS.get(color);
+    if(!m){ m=new THREE.MeshLambertMaterial({color,flatShading:true}); _MATS.set(color,m); }
+    return m;
+  }
+  return new THREE.MeshLambertMaterial(Object.assign({color,flatShading:true},opts));
+}
 function box(w,h,d,color){ return new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(color)); }
 function cyl(rt,rb,h,seg,color){ return new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mat(color)); }
 function ico(r,detail,color){ return new THREE.Mesh(new THREE.IcosahedronGeometry(r,detail),mat(color)); }
@@ -1220,7 +1232,8 @@ function despejarVista(dt){
   ocT-=dt; if(ocT>0) return; ocT=0.12;
   for(const m of ocluyentes){
     if(!m.material) continue;
-    m.material.opacity=m.__op0; m.material.transparent=m.__tr0; m.material.depthWrite=m.__dw0;
+    if(m.__matOrig){ m.material.dispose(); m.material=m.__matOrig; m.__matOrig=null; }
+    else { m.material.opacity=m.__op0; m.material.transparent=m.__tr0; m.material.depthWrite=m.__dw0; }
   }
   ocluyentes=[];
   if(!ENV||!player) return;
@@ -1233,6 +1246,8 @@ function despejarVista(dt){
     const m=h.object;
     if(!m.isMesh||!m.material||m.material.__noFade) continue;
     if(m.__op0===undefined){ m.__op0=m.material.opacity; m.__tr0=m.material.transparent; m.__dw0=m.material.depthWrite; }
+    // copia propia: el material es compartido y no se puede tocar el del resto
+    if(!m.__matOrig){ m.__matOrig=m.material; m.material=m.material.clone(); }
     m.material.transparent=true; m.material.opacity=Math.min(m.__op0,0.22); m.material.depthWrite=false;
     ocluyentes.push(m);
     if(ocluyentes.length>14) break;

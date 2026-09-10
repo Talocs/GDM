@@ -265,12 +265,26 @@ window.addEventListener('keydown',e=>{
 
   const estilo=document.createElement('style');
   estilo.id='gdmHorizontal';
+  // Los rótulos de los juegos están medidos en 'vw', o sea el ancho del
+  // teléfono (390 px). Con el juego de lado esa medida ya no corresponde a lo
+  // que se ve y los carteles salen enormes, tapando media pantalla. Aquí se
+  // fijan a un tamaño sensato. Vale para los cinco juegos.
+  const CHICO =
+    'html.gdmRot #banner{font-size:26px!important;letter-spacing:1px!important;}'+
+    'html.gdmRot #toast,html.gdmRot #aviso,html.gdmRot #msg{font-size:13px!important;'+
+      'padding:7px 13px!important;border-width:2px!important;border-radius:10px!important;line-height:1.25!important;}'+
+    'html.gdmRot #hud,html.gdmRot #hudTop{transform:scale(.72)!important;transform-origin:top left!important;}'+
+    '@media (max-height:520px){'+
+      '#banner{font-size:26px!important;letter-spacing:1px!important;}'+
+      '#toast,#aviso,#msg{font-size:13px!important;padding:7px 13px!important;border-width:2px!important;border-radius:10px!important;}'+
+      '#hud,#hudTop{transform:scale(.72)!important;transform-origin:top left!important;}}';
   estilo.textContent=
     'html.gdmRot,html.gdmRot body{margin:0!important;padding:0!important;overflow:hidden!important;}'+
     'html.gdmRot body{position:fixed!important;top:0!important;left:0!important;'+
       'width:var(--gdmW)!important;height:var(--gdmH)!important;'+
       'transform-origin:0 0!important;'+
-      'transform:translateX(var(--gdmW2)) rotate(90deg)!important;}';
+      'transform:translateX(var(--gdmW2)) rotate(90deg)!important;}'+
+    CHICO;
   const meterEstilo=()=>{ (document.head||document.documentElement).appendChild(estilo); };
   if(document.head||document.documentElement) meterEstilo();
   else document.addEventListener('DOMContentLoaded',meterEstilo);
