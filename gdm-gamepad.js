@@ -233,87 +233,61 @@ window.addEventListener('keydown',e=>{
 },true);
 
 // ============================================================
-//  GIRA EL CELULAR  ·  se ve mejor en horizontal, pero NUNCA se bloquea
-//  Muchos celulares tienen el giro trabado, y el navegador de Instagram
-//  no rota nunca. Por eso el aviso SIEMPRE tiene botón para seguir igual:
-//  si no, la persona queda encerrada y el juego no arranca jamás.
+//  «MEJOR DE LADO»  ·  aviso que NO bloquea, nunca
+//  Antes esto era una pantalla completa que tapaba el juego hasta girar.
+//  Mal: con el giro trabado, o dentro del navegador de Instagram (que no
+//  rota), el juego no arrancaba jamás. Ahora es una franja que se va sola
+//  y el juego SIEMPRE se puede jugar, se gire o no.
 // ============================================================
 (function(){
-  if(!ESTACTIL) return;                       // en computadora no aplica
-  let capa=null, congelado=false, saltado=false;
+  if(!ESTACTIL) return;                        // en computadora no aplica
+  let franja=null, mostrada=false, quitada=false;
 
-  try{ saltado = sessionStorage.getItem('gdm_jugar_vertical')==='1'; }catch(e){}
-
-  function seguirIgual(){
-    saltado=true;
-    try{ sessionStorage.setItem('gdm_jugar_vertical','1'); }catch(e){}
-    if(capa) capa.style.display='none';
-    congelado=false;
-    if(!window.GDM_PAUSA) window.GDM_HOLD=false;
-  }
-
-  function crea(){
-    if(capa) return capa;
-    if(!document.body) return null;           // todavía no hay dónde meterlo
-    capa=document.createElement('div');
-    capa.id='gdmGira';
-    capa.style.cssText='position:fixed;inset:0;z-index:99997;display:none;'+
-      'flex-direction:column;align-items:center;justify-content:center;text-align:center;'+
-      'background:radial-gradient(circle at 50% 38%, #45126e, #0a0614 70%);color:#ece6f7;'+
-      "font-family:'Space Mono',ui-monospace,monospace;padding:20px;";
-    capa.innerHTML=
-      '<div style="width:78px;height:120px;border:5px solid #22e6ff;border-radius:12px;'+
-        'position:relative;margin-bottom:22px;animation:gdmGiro 1.8s ease-in-out infinite;">'+
-        '<div style="position:absolute;left:50%;transform:translateX(-50%);bottom:6px;width:28px;'+
-          'height:4px;background:#22e6ff;border-radius:3px;"></div></div>'+
-      '<div style="font-family:Righteous,sans-serif;font-size:24px;letter-spacing:3px;color:#c6ff2e;">'+
-        'GIRA EL CELULAR</div>'+
-      '<div style="margin-top:10px;font-size:13px;color:#b9a9d6;line-height:1.6;">'+
-        'Se ve mucho mejor de lado.</div>'+
-      '<button id="gdmIgual" style="margin-top:26px;font-family:Righteous,sans-serif;font-size:15px;'+
-        'letter-spacing:2px;color:#2a0c22;background:#ffd24a;border:none;padding:14px 30px;'+
-        'border-radius:9px;cursor:pointer;box-shadow:0 5px 0 #b07a10;">JUGAR ASÍ NOMÁS</button>'+
-      '<div style="margin-top:20px;font-size:11px;color:#7a6a96;letter-spacing:.5px;line-height:1.7;">'+
-        'si no gira: revisa el bloqueo de pantalla,<br>o ábrelo en Chrome o Safari</div>';
-    const est=document.createElement('style');
-    est.textContent='@keyframes gdmGiro{0%,45%{transform:rotate(0)}70%,100%{transform:rotate(-90deg)}}';
-    capa.appendChild(est);
-    document.body.appendChild(capa);
-    const b=capa.querySelector('#gdmIgual');
-    b.addEventListener('click',function(e){ e.stopPropagation(); seguirIgual(); });
-    b.addEventListener('touchend',function(e){ e.stopPropagation(); e.preventDefault(); seguirIgual(); });
-    return capa;
-  }
+  try{ quitada = sessionStorage.getItem('gdm_aviso_lado')==='1'; }catch(e){}
 
   function esVertical(){
-    // se pide girar solo si además la pantalla es realmente angosta para jugar
-    let vert;
-    try{ vert = window.matchMedia ? window.matchMedia('(orientation: portrait)').matches
-                                  : (innerHeight > innerWidth); }
-    catch(e){ vert = innerHeight > innerWidth; }
-    return vert && innerWidth < 640;
+    let v;
+    try{ v = window.matchMedia ? window.matchMedia('(orientation: portrait)').matches
+                               : (innerHeight > innerWidth); }
+    catch(e){ v = innerHeight > innerWidth; }
+    return v && innerWidth < 640;
   }
-
+  function esconder(){
+    quitada=true;
+    try{ sessionStorage.setItem('gdm_aviso_lado','1'); }catch(e){}
+    if(franja) franja.style.display='none';
+  }
+  function muestra(){
+    if(quitada || mostrada || !document.body) return;
+    mostrada=true;
+    franja=document.createElement('div');
+    franja.id='gdmLado';
+    franja.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:99996;'+
+      'display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;'+
+      'background:rgba(20,11,38,.94);border:1px solid rgba(198,255,46,.5);color:#ece6f7;'+
+      "font-family:'Space Mono',ui-monospace,monospace;font-size:12px;line-height:1.4;"+
+      'box-shadow:0 6px 20px rgba(0,0,0,.5);';
+    franja.innerHTML=
+      '<span style="font-size:19px;color:#22e6ff;">⟳</span>'+
+      '<span style="flex:1;">Gira el celular: <b style="color:#c6ff2e;">se ve mejor de lado</b></span>'+
+      '<span id="gdmLadoX" style="padding:4px 10px;color:#ffd24a;font-size:17px;">✕</span>';
+    document.body.appendChild(franja);
+    const x=franja.querySelector('#gdmLadoX');
+    const cerrar=function(e){ e.stopPropagation(); esconder(); };
+    x.addEventListener('click',cerrar);
+    x.addEventListener('touchend',cerrar);
+    setTimeout(esconder,7000);                 // y si no lo tocan, se va sola
+  }
   function revisa(){
-    if(saltado){ if(capa) capa.style.display='none'; return; }
-    const c=crea(); if(!c) return;
-    const vertical=esVertical();
-    c.style.display = vertical ? 'flex' : 'none';
-    if(vertical){
-      congelado=true; window.GDM_HOLD=true;
-    }else if(congelado){
-      congelado=false;
-      if(!window.GDM_PAUSA) window.GDM_HOLD=false;
-    }
+    if(quitada) return;
+    if(esVertical()) muestra();
+    else esconder();                           // giró: ya no hace falta
   }
-
-  addEventListener('resize',revisa);
-  addEventListener('orientationchange',function(){ setTimeout(revisa,120); });
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',revisa);
   else revisa();
-  setInterval(revisa,1000);                    // por si el navegador no avisa del giro
-  window.GDMGira=revisa;
-  window.GDMJugarVertical=seguirIgual;         // salida de emergencia
+  addEventListener('orientationchange',function(){ setTimeout(revisa,150); });
+  setTimeout(revisa,600);
+  window.GDMLado=revisa;
 })();
 
 // ============================================================
