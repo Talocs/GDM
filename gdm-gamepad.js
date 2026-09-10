@@ -233,61 +233,84 @@ window.addEventListener('keydown',e=>{
 },true);
 
 // ============================================================
-//  «MEJOR DE LADO»  ·  aviso que NO bloquea, nunca
-//  Antes esto era una pantalla completa que tapaba el juego hasta girar.
-//  Mal: con el giro trabado, o dentro del navegador de Instagram (que no
-//  rota), el juego no arrancaba jamás. Ahora es una franja que se va sola
-//  y el juego SIEMPRE se puede jugar, se gire o no.
+//  MODO HORIZONTAL  ·  el juego se pone de lado por su cuenta
+//  Un celular con el giro trabado (o el navegador de Instagram, que no
+//  rota) nunca pasa a landscape. Pedirlo no sirve. Así que cuando la
+//  pantalla está vertical se gira EL CONTENIDO 90°: la persona pone el
+//  teléfono de lado y ve el juego bien puesto, sin tocar ajustes.
+//  Si el celular sí rota, el sistema ya lo pone horizontal y esto se apaga.
 // ============================================================
 (function(){
-  if(!ESTACTIL) return;                        // en computadora no aplica
-  let franja=null, mostrada=false, quitada=false;
+  if(!ESTACTIL) return;
 
-  try{ quitada = sessionStorage.getItem('gdm_aviso_lado')==='1'; }catch(e){}
+  const anchoReal  = () => document.documentElement.clientWidth  || window.screen.width;
+  const altoReal   = () => document.documentElement.clientHeight || window.screen.height;
+  let rotado=false;
 
-  function esVertical(){
-    let v;
-    try{ v = window.matchMedia ? window.matchMedia('(orientation: portrait)').matches
-                               : (innerHeight > innerWidth); }
-    catch(e){ v = innerHeight > innerWidth; }
-    return v && innerWidth < 640;
+  // Los juegos miden con innerWidth/innerHeight para dimensionar su canvas.
+  // Con el contenido girado, esas medidas van al revés: se intercambian.
+  (function(){
+    try{
+      const dW=Object.getOwnPropertyDescriptor(window,'innerWidth')  ||
+               Object.getOwnPropertyDescriptor(Window.prototype,'innerWidth');
+      const dH=Object.getOwnPropertyDescriptor(window,'innerHeight') ||
+               Object.getOwnPropertyDescriptor(Window.prototype,'innerHeight');
+      if(!dW||!dH||!dW.get||!dH.get) return;
+      Object.defineProperty(window,'innerWidth', {configurable:true,
+        get(){ return rotado ? dH.get.call(window) : dW.get.call(window); }});
+      Object.defineProperty(window,'innerHeight',{configurable:true,
+        get(){ return rotado ? dW.get.call(window) : dH.get.call(window); }});
+    }catch(e){}
+  })();
+
+  const estilo=document.createElement('style');
+  estilo.id='gdmHorizontal';
+  estilo.textContent=
+    'html.gdmRot,html.gdmRot body{margin:0!important;padding:0!important;overflow:hidden!important;}'+
+    'html.gdmRot body{position:fixed!important;top:0!important;left:0!important;'+
+      'width:var(--gdmW)!important;height:var(--gdmH)!important;'+
+      'transform-origin:0 0!important;'+
+      'transform:translateX(var(--gdmW2)) rotate(90deg)!important;}';
+  const meterEstilo=()=>{ (document.head||document.documentElement).appendChild(estilo); };
+  if(document.head||document.documentElement) meterEstilo();
+  else document.addEventListener('DOMContentLoaded',meterEstilo);
+
+  function debeRotar(){
+    let vertical;
+    try{ vertical = window.matchMedia ? window.matchMedia('(orientation: portrait)').matches
+                                      : (altoReal() > anchoReal()); }
+    catch(e){ vertical = altoReal() > anchoReal(); }
+    return vertical && anchoReal() < 640;      // tablets anchas se quedan como están
   }
-  function esconder(){
-    quitada=true;
-    try{ sessionStorage.setItem('gdm_aviso_lado','1'); }catch(e){}
-    if(franja) franja.style.display='none';
+
+  function aplica(){
+    const hayQue=debeRotar();
+    const raiz=document.documentElement;
+    if(hayQue===rotado){                       // ya está como toca; solo refrescar medidas
+      if(rotado) medidas();
+      return;
+    }
+    rotado=hayQue;
+    if(rotado){ medidas(); raiz.classList.add('gdmRot'); }
+    else{ raiz.classList.remove('gdmRot'); }
+    // los juegos recalculan su canvas al oír esto
+    setTimeout(()=>{ try{ window.dispatchEvent(new Event('resize')); }catch(e){} }, 30);
+    setTimeout(()=>{ try{ window.dispatchEvent(new Event('resize')); }catch(e){} }, 260);
   }
-  function muestra(){
-    if(quitada || mostrada || !document.body) return;
-    mostrada=true;
-    franja=document.createElement('div');
-    franja.id='gdmLado';
-    franja.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:99996;'+
-      'display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;'+
-      'background:rgba(20,11,38,.94);border:1px solid rgba(198,255,46,.5);color:#ece6f7;'+
-      "font-family:'Space Mono',ui-monospace,monospace;font-size:12px;line-height:1.4;"+
-      'box-shadow:0 6px 20px rgba(0,0,0,.5);';
-    franja.innerHTML=
-      '<span style="font-size:19px;color:#22e6ff;">⟳</span>'+
-      '<span style="flex:1;">Gira el celular: <b style="color:#c6ff2e;">se ve mejor de lado</b></span>'+
-      '<span id="gdmLadoX" style="padding:4px 10px;color:#ffd24a;font-size:17px;">✕</span>';
-    document.body.appendChild(franja);
-    const x=franja.querySelector('#gdmLadoX');
-    const cerrar=function(e){ e.stopPropagation(); esconder(); };
-    x.addEventListener('click',cerrar);
-    x.addEventListener('touchend',cerrar);
-    setTimeout(esconder,7000);                 // y si no lo tocan, se va sola
+  function medidas(){
+    const raiz=document.documentElement;
+    const w=anchoReal(), h=altoReal();
+    raiz.style.setProperty('--gdmW', h+'px');   // el body mide al revés
+    raiz.style.setProperty('--gdmH', w+'px');
+    raiz.style.setProperty('--gdmW2', w+'px');  // y se corre para caer en pantalla
   }
-  function revisa(){
-    if(quitada) return;
-    if(esVertical()) muestra();
-    else esconder();                           // giró: ya no hace falta
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',revisa);
-  else revisa();
-  addEventListener('orientationchange',function(){ setTimeout(revisa,150); });
-  setTimeout(revisa,600);
-  window.GDMLado=revisa;
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',aplica);
+  else aplica();
+  addEventListener('resize',aplica);
+  addEventListener('orientationchange',()=>setTimeout(aplica,150));
+  setInterval(aplica,1500);
+  window.GDMHorizontal={ aplica, activo:()=>rotado };
 })();
 
 // ============================================================
