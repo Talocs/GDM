@@ -230,8 +230,8 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="gdm-music.js?v=1789059044"></script>
-<script src="gdm-gamepad.js?v=1789059044"></script>
+<script src="gdm-music.js?v=1789060061"></script>
+<script src="gdm-gamepad.js?v=1789060061"></script>
 <script>
 window.addEventListener('error',function(e){
   let d=document.getElementById('errbox');
@@ -985,6 +985,7 @@ function ejeTeclado(){
     e.preventDefault(); },{passive:false});
   zona.addEventListener('touchmove',e=>{ for(const t of e.changedTouches){ if(t.identifier!==id) continue;
     const r=zona.getBoundingClientRect(); let dx=t.clientX-r.left-ox, dy=t.clientY-r.top-oy;
+    if(window.GDMvec){ var _v=GDMvec({x:dx,y:dy}); dx=_v.x; dy=_v.y; }
     const d=Math.hypot(dx,dy), max=56; if(d>max){ dx*=max/d; dy*=max/d; }
     pon(thumb,ox+dx,oy+dy); IN.x=clamp(dx/max,-1,1); IN.z=clamp(dy/max,-1,1); IN.tocando=true; }
     e.preventDefault(); },{passive:false});

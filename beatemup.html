@@ -174,8 +174,8 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="gdm-music.js?v=1789059044"></script>
-<script src="gdm-gamepad.js?v=1789059044"></script>
+<script src="gdm-music.js?v=1789060061"></script>
+<script src="gdm-gamepad.js?v=1789060061"></script>
 <script>
 window.addEventListener('error',function(e){
   let d=document.getElementById('errbox');
@@ -1153,7 +1153,8 @@ let joyId=null, joyOX=0, joyOY=0; const RR=52;
 stick.addEventListener('touchstart',e=>{ const t=e.changedTouches[0]; joyId=t.identifier; joyOX=t.clientX; joyOY=t.clientY;
   base.style.left=thumb.style.left=joyOX+'px'; base.style.top=thumb.style.top=joyOY+'px'; base.style.opacity=thumb.style.opacity=1; },{passive:false});
 stick.addEventListener('touchmove',e=>{ for(const t of e.changedTouches){ if(t.identifier!==joyId) continue;
-  let dx=t.clientX-joyOX, dy=t.clientY-joyOY; const d=Math.hypot(dx,dy)||1; const cl=Math.min(d,RR); const ux=dx/d, uy=dy/d;
+  let dx=t.clientX-joyOX, dy=t.clientY-joyOY;
+    if(window.GDMvec){ var _v=GDMvec({x:dx,y:dy}); dx=_v.x; dy=_v.y; } const d=Math.hypot(dx,dy)||1; const cl=Math.min(d,RR); const ux=dx/d, uy=dy/d;
   thumb.style.left=(joyOX+ux*cl)+'px'; thumb.style.top=(joyOY+uy*cl)+'px'; joy.x=ux*(cl/RR); joy.y=uy*(cl/RR); } e.preventDefault(); },{passive:false});
 function endJoy(e){ for(const t of e.changedTouches){ if(t.identifier===joyId){ joyId=null; joy.x=0;joy.y=0; base.style.opacity=thumb.style.opacity=0; } } }
 stick.addEventListener('touchend',endJoy); stick.addEventListener('touchcancel',endJoy);

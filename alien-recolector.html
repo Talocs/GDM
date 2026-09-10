@@ -152,8 +152,8 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="gdm-music.js?v=1789059044"></script>
-<script src="gdm-gamepad.js?v=1789059044"></script>
+<script src="gdm-music.js?v=1789060061"></script>
+<script src="gdm-gamepad.js?v=1789060061"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 // ---- mostrar errores en pantalla (diagnóstico móvil) ----
@@ -1332,7 +1332,8 @@ const TOUCH=('ontouchstart' in window)||(navigator.maxTouchPoints>0)||matchMedia
   stick.addEventListener('touchmove',e=>{
     for(const tt of e.changedTouches){
       if(tt.identifier!==id) continue;
-      const dx=tt.clientX-bx, dy=tt.clientY-by;
+      let dx=tt.clientX-bx, dy=tt.clientY-by;
+    if(window.GDMvec){ var _v=GDMvec({x:dx,y:dy}); dx=_v.x; dy=_v.y; }
       const len=Math.hypot(dx,dy)||1, cl=Math.min(len,R);
       place(thumb,bx+dx/len*cl,by+dy/len*cl);
       G_touch.x=dx/len*(cl/R); G_touch.z=dy/len*(cl/R);

@@ -311,6 +311,10 @@ window.addEventListener('keydown',e=>{
   addEventListener('orientationchange',()=>setTimeout(aplica,150));
   setInterval(aplica,1500);
   window.GDMHorizontal={ aplica, activo:()=>rotado };
+  // Con el contenido girado, un arrastre del dedo llega en coordenadas de la
+  // PANTALLA, pero el juego lo lee como si fuera de su propio mundo (que está
+  // rotado 90°). Sin esto, los sticks salen cruzados. Se rota el vector.
+  window.GDMvec=function(v){ if(rotado){ const t=v.x; v.x=v.y; v.y=-t; } return v; };
 })();
 
 // ============================================================
