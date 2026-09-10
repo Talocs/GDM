@@ -152,8 +152,8 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="gdm-music.js?v=1789060061"></script>
-<script src="gdm-gamepad.js?v=1789060061"></script>
+<script src="gdm-music.js?v=1789062082"></script>
+<script src="gdm-gamepad.js?v=1789062082"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 // ---- mostrar errores en pantalla (diagnóstico móvil) ----
@@ -299,6 +299,11 @@ app.appendChild(renderer.domElement);
 // ============================================================
 // Arranca en la mejor calidad; si mide FPS bajos, baja de escalón.
 // Nunca sube: evita parpadeo. Las máquinas potentes se quedan en nivel 0.
+// en celular se recorta lo que más cuesta: las luces sueltas por el escenario
+const POCAS_LUCES = (function(){ try{
+  return (('ontouchstart' in window)||navigator.maxTouchPoints>0) &&
+         Math.min(screen.width,screen.height)<820;
+}catch(e){ return false; } })();
 const PERF={
   tiers:[
     {pr:Math.min(dpr,2),    shadow:1024, soft:true },  // 0 · alta
@@ -307,8 +312,16 @@ const PERF={
     {pr:1,                  shadow:512,  soft:false},  // 3
     {pr:1,                  shadow:0,    soft:false},  // 4 · sin sombras
   ],
+  // En celular se arranca YA en el escalón liviano: este nivel dibuja ~3.500
+  // objetos con 14 luces, y esperar a que el medidor baje solo dejaba el juego
+  // a tirones los primeros 15 segundos (que es cuando la gente lo prueba).
   level:0, acc:0, frames:0, cooldown:2
 };
+(function(){
+  const tactil=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+  const chica=Math.min(screen.width,screen.height)<820;
+  if(tactil&&chica) PERF.level=PERF.tiers.length-1;      // sin sombras, resolución 1
+})();
 function applyPerf(){
   const q=PERF.tiers[PERF.level];
   renderer.setPixelRatio(q.pr);
@@ -553,9 +566,14 @@ function buildWeed(type){
   });
   const bud=ico(golden?0.22:purple?0.22:0.16,0, golden?COL.gold : red?COL.budRed : purple?COL.budPur : COL.bud);
   bud.position.y=1.55; bud.scale.y=1.4; g.add(bud);
-  if(golden){ const gl=new THREE.PointLight(0xffd24a,0.9,6,2); gl.position.y=1.4; g.add(gl); }
-  if(red){ const gl=new THREE.PointLight(0xff3a3a,0.9,6,2); gl.position.y=1.4; g.add(gl); }
-  if(purple){ const gl=new THREE.PointLight(0xc56bff,1.0,7,2); gl.position.y=1.4; g.add(gl); }
+  // El brillo de estas plantas es decorativo, pero CADA luz encarece el dibujo
+  // de los ~3.500 objetos del nivel. En celular se dejan sin luz propia: el
+  // material ya brilla, así que se siguen distinguiendo igual.
+  if(!POCAS_LUCES){
+    if(golden){ const gl=new THREE.PointLight(0xffd24a,0.9,6,2); gl.position.y=1.4; g.add(gl); }
+    if(red){ const gl=new THREE.PointLight(0xff3a3a,0.9,6,2); gl.position.y=1.4; g.add(gl); }
+    if(purple){ const gl=new THREE.PointLight(0xc56bff,1.0,7,2); gl.position.y=1.4; g.add(gl); }
+  }
   g.add(blobShadow(0.75));
   g.userData.golden=golden; g.userData.type=type;
   return g;
@@ -964,8 +982,23 @@ function makeParticles(type){
 }
 
 // ---------- construir todo el escenario del nivel ----------
+// Al cambiar de nivel, scene.remove() saca el objeto de la escena pero DEJA
+// su geometría ocupando memoria de video. Con ~3.500 geometrías por nivel, a
+// las pocas partidas la tarjeta se ahoga y el juego se traba. Esto las suelta.
+function soltar(obj){
+  if(!obj) return;
+  obj.traverse(function(o){
+    if(o.geometry && o.geometry.dispose) o.geometry.dispose();
+  });
+}
+function quitar(obj){                      // sacar de la escena Y liberar
+  if(!obj) return;
+  if(obj.parent) obj.parent.remove(obj); else scene.remove(obj);
+  soltar(obj);
+}
+
 function buildLevelEnv(L){
-  if(ENV){ scene.remove(ENV); }
+  if(ENV){ quitar(ENV); }                 // el escenario entero: lo más pesado
   ENV=new THREE.Group(); scene.add(ENV);
   MAZE=[];
   PART=null;
@@ -1217,7 +1250,7 @@ function latirMarcas(t){
 }
 
 function spawnPlants(L){
-  G.plants.forEach(p=>scene.remove(p.mesh));
+  G.plants.forEach(p=>quitar(p.mesh));
   G.plants=[];
   const reach=reachableCells();
   const step=6, jit=1.4;
@@ -1256,7 +1289,7 @@ function spawnPlants(L){
 const AGENT_BASES=[[-FIELD+3,-FIELD+3],[FIELD-3,-FIELD+3],[-FIELD+3,FIELD-3],[FIELD-3,FIELD-3],
   [0,-FIELD+3],[0,FIELD-3],[-FIELD+3,0],[FIELD-3,0]];
 function spawnAgents(L){
-  G.agents.forEach(a=>scene.remove(a.mesh));
+  G.agents.forEach(a=>quitar(a.mesh));
   G.agents=[];
   for(let i=0;i<L.agents;i++){
     const b=AGENT_BASES[i%AGENT_BASES.length];
@@ -1269,7 +1302,7 @@ function spawnAgents(L){
 }
 const VEH_BASES=[[0,-FIELD+3],[0,FIELD-3],[-FIELD+3,0],[FIELD-3,0]];
 function spawnVehicles(L){
-  G.vehicles.forEach(v=>scene.remove(v.mesh));
+  G.vehicles.forEach(v=>quitar(v.mesh));
   G.vehicles=[];
   for(let i=0;i<L.vehicles;i++){
     const b=VEH_BASES[i%VEH_BASES.length];
@@ -1395,11 +1428,11 @@ function startGame(levelIdx){
   G.scaredMax=L.scared;
   G.score=0; G.lives=3; G.scaredTimer=0; G.slowTimer=0; G.invuln=2;
   G.ammo=0; G.purpleNext=8+Math.random()*8;
-  if(G.purple){ scene.remove(G.purple.mesh); G.purple=null; }
-  G.bolts.forEach(b=>scene.remove(b.mesh)); G.bolts=[];
+  if(G.purple){ quitar(G.purple.mesh); G.purple=null; }
+  G.bolts.forEach(b=>quitar(b.mesh)); G.bolts=[];
   player.position.set(0,0,0); G.heading=0; G.vel.set(0,0,0);
   spawnPlants(L); spawnAgents(L); spawnVehicles(L); setScared(false);
-  G.picking.forEach(p=>scene.remove(p.mesh)); G.picking=[];
+  G.picking.forEach(p=>quitar(p.mesh)); G.picking=[];
   document.getElementById('lvlLbl').textContent='NIVEL '+(curLevel+1)+' · '+L.name;
   updateHUD();
   document.getElementById('startScreen').classList.add('hide');
@@ -1426,8 +1459,8 @@ function endGame(win){
   G.playing=false;
   setScared(false);
   G.slowTimer=0;
-  if(G.purple){ scene.remove(G.purple.mesh); G.purple=null; }
-  G.bolts.forEach(b=>scene.remove(b.mesh)); G.bolts=[];
+  if(G.purple){ quitar(G.purple.mesh); G.purple=null; }
+  G.bolts.forEach(b=>quitar(b.mesh)); G.bolts=[];
   const nextBtn=document.getElementById('nextBtn');
   const againBtn=document.getElementById('againBtn');
   nextBtn.classList.add('hide');
@@ -1503,8 +1536,8 @@ function crashImpact(){
 }
 function finishCrash(){
   const c=G.crash; if(!c) return;
-  if(c.boom) scene.remove(c.boom);
-  c.debris.forEach(d=>scene.remove(d.mesh));
+  if(c.boom) quitar(c.boom);
+  c.debris.forEach(d=>quitar(d.mesh));
   G.crash=null;
   sb.saucer.visible=true;
   sb.saucer.rotation.set(0,0,0);
@@ -1561,7 +1594,7 @@ function spawnPurple(){
   blip(720,0.14,'triangle');
 }
 function collectPurple(){
-  scene.remove(G.purple.mesh); G.purple=null;
+  quitar(G.purple.mesh); G.purple=null;
   G.ammo+=3; updateHUD();
   G.purpleNext=12+Math.random()*8;
   blip(960,0.18,'square');

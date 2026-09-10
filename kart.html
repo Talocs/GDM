@@ -185,8 +185,8 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="gdm-music.js?v=1789060061"></script>
-<script src="gdm-gamepad.js?v=1789060061"></script>
+<script src="gdm-music.js?v=1789062082"></script>
+<script src="gdm-gamepad.js?v=1789062082"></script>
 <script>if(window.GDMPad&&GDMPad.setProfile) GDMPad.setProfile('kart');</script>
 <script>
 window.addEventListener('error',function(e){
@@ -321,11 +321,11 @@ let samples=[], boostPads=[], cones=[], ROADW=9, PART=null;
 let itemBoxes=[], shots=[], slicks=[];
 
 function buildTrackLevel(L){
-  if(TRACKG){ scene.remove(TRACKG); }
+  if(TRACKG){ quitar(TRACKG); }
   TRACKG=new THREE.Group(); scene.add(TRACKG);
   samples=[]; boostPads=[]; cones=[]; itemBoxes=[]; PART=null;
-  for(const o of shots) scene.remove(o.mesh); shots=[];
-  for(const o of slicks) scene.remove(o.mesh); slicks=[];
+  for(const o of shots) quitar(o.mesh); shots=[];
+  for(const o of slicks) quitar(o.mesh); slicks=[];
   ROADW=L.roadW;
 
   scene.fog=new THREE.Fog(L.fogC,L.fogN,L.fogF);
@@ -551,7 +551,7 @@ function updateItems(dt){
       if(k===o.owner) continue;
       if(Math.hypot(k.x-o.x,k.z-o.z)<1.8){ trompo(k,true); pegó=true; break; }
     }
-    if(pegó||o.life<=0){ scene.remove(o.mesh); shots.splice(i,1); }
+    if(pegó||o.life<=0){ quitar(o.mesh); shots.splice(i,1); }
   }
   for(let i=slicks.length-1;i>=0;i--){
     const o=slicks[i]; o.life-=dt; if(o.gracia>0) o.gracia-=dt;
@@ -560,7 +560,7 @@ function updateItems(dt){
       if(k===o.owner && o.gracia>0) continue;
       if(Math.hypot(k.x-o.x,k.z-o.z)<1.6) trompo(k,false);
     }
-    if(o.life<=0){ scene.remove(o.mesh); slicks.splice(i,1); }
+    if(o.life<=0){ quitar(o.mesh); slicks.splice(i,1); }
   }
 }
 
@@ -1115,7 +1115,7 @@ function startRace(cirIdx){
              ['ESPACIO','Derrape'],['K','Lanzar el ítem'],
              ['P','Pausa'],['—','Pasa por las cajas ✦ para conseguir ítems']]});
   const L=CIRCUITS[curCir];
-  for(const k of karts) scene.remove(k.mesh);
+  for(const k of karts) quitar(k.mesh);
   limpiaHumo();
   karts=[];
   buildTrackLevel(L);
@@ -1267,7 +1267,16 @@ function playerIntent(){
 let humo=[];
 const _vHumo=new THREE.Vector3();
 const HUMO_GEO=new THREE.IcosahedronGeometry(0.19,0);
-function limpiaHumo(){ for(const h of humo) scene.remove(h.mesh); humo=[]; }
+// quitar() saca el objeto de la escena pero su geometría se queda
+// ocupando memoria de video. Sin esto, cada partida deja basura y el juego
+// se va poniendo lento hasta trabarse.
+function soltar(obj){ if(!obj) return;
+  obj.traverse(function(o){ if(o.geometry && o.geometry.dispose) o.geometry.dispose(); }); }
+function quitar(obj){ if(!obj) return;
+  if(obj.parent) obj.parent.remove(obj); else scene.remove(obj);
+  soltar(obj); }
+
+function limpiaHumo(){ for(const h of humo) quitar(h.mesh); humo=[]; }
 function sueltaHumo(k,dt){
   k.U.humoT=(k.U.humoT||0)-dt;
   if(k.U.humoT>0) return;
@@ -1284,12 +1293,12 @@ function sueltaHumo(k,dt){
     vx:-Math.sin(k.angle)*k.speed*0.16+(Math.random()-0.5)*0.7,
     vz:-Math.cos(k.angle)*k.speed*0.16+(Math.random()-0.5)*0.7,
     giro:(Math.random()-0.5)*2.4});
-  if(humo.length>90){ scene.remove(humo[0].mesh); humo.shift(); }
+  if(humo.length>90){ quitar(humo[0].mesh); humo.shift(); }
 }
 function updateHumo(dt){
   for(let i=humo.length-1;i>=0;i--){
     const h=humo[i]; h.vida-=dt;
-    if(h.vida<=0){ scene.remove(h.mesh); humo.splice(i,1); continue; }
+    if(h.vida<=0){ quitar(h.mesh); humo.splice(i,1); continue; }
     h.mesh.position.x+=h.vx*dt; h.mesh.position.y+=h.vy*dt; h.mesh.position.z+=h.vz*dt;
     h.vx*=0.97; h.vz*=0.97;
     h.mesh.rotation.y+=h.giro*dt;
