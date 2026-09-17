@@ -10,7 +10,7 @@
    La pista se elige sola según la pantalla; los juegos siguen llamando
    GDMMusic.play(loQueSea) y el motor reafirma la pista que le toca.
    Un juego con varios niveles puede fijar la suya con window.GDM_PISTA
-   (NOCHES ÁCIDAS: 'finmundo' en la noche 1, 'limayafue' en la noche 2;
+   (NOCHES ÁCIDAS: 'finmundo' en las dos noches;
    MARCIANO RECOLECTOR: 'limaciudad' en el Jirón de la Unión).
 
    API (igual que antes):
